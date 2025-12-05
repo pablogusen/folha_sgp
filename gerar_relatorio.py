@@ -662,7 +662,137 @@ def gerar_html_relatorio(dados_folhas):
             border-bottom: 2px solid #721c24 !important;
             text-decoration: none !important;
         }}
+        
+        /* ============================================ */
+        /* RESPONSIVIDADE MOBILE */
+        /* ============================================ */
+        @media screen and (max-width: 768px) {{
+            body {{
+                padding: 10px;
+            }}
+            
+            .container {{
+                border-radius: 10px;
+            }}
+            
+            header {{
+                padding: 20px 15px;
+            }}
+            
+            header h1 {{
+                font-size: 1.5em;
+                line-height: 1.3;
+            }}
+            
+            header p {{
+                font-size: 0.9em;
+            }}
+            
+            .content {{
+                padding: 20px 15px;
+            }}
+            
+            .stats-grid {{
+                grid-template-columns: 1fr !important;
+                gap: 15px;
+            }}
+            
+            .stat-card {{
+                padding: 20px 15px;
+            }}
+            
+            .stat-card h3 {{
+                font-size: 0.9em;
+            }}
+            
+            .stat-card .valor {{
+                font-size: 1.5em;
+            }}
+            
+            .search-container {{
+                padding: 15px;
+            }}
+            
+            .search-container input {{
+                font-size: 14px;
+                padding: 12px 15px;
+            }}
+            
+            table {{
+                font-size: 12px;
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+                -webkit-overflow-scrolling: touch;
+            }}
+            
+            table th,
+            table td {{
+                padding: 8px 6px;
+            }}
+            
+            .alert {{
+                padding: 15px;
+                font-size: 0.9em;
+            }}
+            
+            nav {{
+                padding: 15px 10px;
+                text-align: center;
+            }}
+            
+            nav button {{
+                padding: 10px 20px;
+                font-size: 14px;
+                margin: 5px 3px;
+            }}
+            
+            /* Ajustes para seção de Ajuste de Margem */
+            .stats-grid[style*="grid-template-columns: repeat(2, 1fr)"] {{
+                grid-template-columns: 1fr !important;
+            }}
+            
+            /* Ajuste de títulos menores */
+            h2 {{
+                font-size: 1.3em;
+            }}
+            
+            h3 {{
+                font-size: 1.1em;
+            }}
+            
+            h4 {{
+                font-size: 1em;
+            }}
+            
+            h5 {{
+                font-size: 0.95em;
+            }}
+        }}
+        
+        @media screen and (max-width: 480px) {{
+            header h1 {{
+                font-size: 1.2em;
+            }}
+            
+            .stat-card .valor {{
+                font-size: 1.3em;
+            }}
+            
+            table {{
+                font-size: 11px;
+            }}
+            
+            nav button {{
+                padding: 8px 15px;
+                font-size: 12px;
+                display: block;
+                width: 100%;
+                margin: 5px 0;
+            }}
+        }}
     </style>
+
 </head>
 <body>
     <div class="container">
@@ -1670,7 +1800,14 @@ def gerar_html_relatorio(dados_folhas):
                     
                     // Função para verificar se um desconto está em uma lista
                     const estaEmLista = (descricao, lista) => {
-                        return lista.some(item => descricao.toUpperCase().includes(item.toUpperCase()));
+                        const descUpper = descricao.toUpperCase().trim();
+                        return lista.some(item => {
+                            const itemUpper = item.toUpperCase().trim();
+                            // Verifica correspondência exata ou se contém o item completo
+                            return descUpper === itemUpper || 
+                                   descUpper.includes(itemUpper) ||
+                                   itemUpper.includes(descUpper);
+                        });
                     };
                     
                     // Simular eliminações
@@ -1688,7 +1825,7 @@ def gerar_html_relatorio(dados_folhas):
                         // Limitar combinações se houver muitos itens (performance)
                         const maxCombinacoes = Math.min(Math.pow(2, descontos.length), 65536);
                         
-                        for (let i = 0; i < maxCombinacoes; i++) {
+                        for (let i = 1; i < maxCombinacoes; i++) { // Começa em 1 para evitar combinação vazia
                             let somaTemp = totalJaEliminado;
                             let combinacaoTemp = [];
                             
@@ -1711,6 +1848,11 @@ def gerar_html_relatorio(dados_folhas):
                                     melhorPercentual = novoPercentual;
                                 }
                             }
+                        }
+                        
+                        // Se nenhuma combinação atingiu <= 35%, elimina todos do grupo para tentar no próximo
+                        if (melhorCombinacao.length === 0 && descontos.length > 0) {
+                            return descontos;
                         }
                         
                         return melhorCombinacao;
@@ -2141,3 +2283,123 @@ print("🎉 PROCESSAMENTO CONCLUÍDO COM SUCESSO!")
 print("="*80)
 print("\n🌐 Abra o arquivo HTML no navegador para visualizar o relatório!")
 print(f"   → {caminho_saida}\n")
+
+# ============================================
+# SINCRONIZAÇÃO AUTOMÁTICA COM GITHUB
+# ============================================
+print("="*80)
+print("🔄 SINCRONIZAÇÃO COM GITHUB")
+print("="*80)
+
+try:
+    import shutil
+    import subprocess
+    
+    # Copiar para index.html
+    caminho_index = os.path.join(pasta_raiz, "index.html")
+    shutil.copy2(caminho_saida, caminho_index)
+    print(f"✅ Arquivo copiado para: index.html")
+    
+    # Verificar se Git está disponível
+    try:
+        subprocess.run(['git', '--version'], capture_output=True, check=True, cwd=pasta_raiz)
+    except:
+        print("⚠️  Git não encontrado. Arquivo index.html criado, mas não foi sincronizado.")
+        print("💡 Para enviar ao GitHub:")
+        print("   1. Abra o terminal no VS Code")
+        print("   2. Execute: git add index.html")
+        print("   3. Execute: git commit -m 'Atualização'")
+        print("   4. Execute: git push origin main")
+        print("\n")
+        import sys
+        sys.exit(0)
+    
+    # Verificar se há repositório Git
+    result = subprocess.run(['git', 'status'], capture_output=True, text=True, cwd=pasta_raiz)
+    if result.returncode != 0:
+        print("⚠️  Esta pasta não é um repositório Git.")
+        print("💡 Execute: git init")
+        print("\n")
+        import sys
+        sys.exit(0)
+    
+    # Perguntar se deseja fazer push
+    print("\n📤 Deseja enviar para o GitHub agora?")
+    resposta = input("   Digite 's' para SIM ou qualquer outra tecla para NÃO: ").strip().lower()
+    
+    if resposta == 's':
+        # Adicionar ao Git
+        subprocess.run(['git', 'add', 'index.html'], cwd=pasta_raiz, check=True)
+        print("✅ Arquivo adicionado ao Git")
+        
+        # Commit
+        data_hora = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        result = subprocess.run(
+            ['git', 'commit', '-m', f'Atualização automática - {data_hora}'],
+            capture_output=True,
+            text=True,
+            cwd=pasta_raiz
+        )
+        
+        if "nothing to commit" in result.stdout:
+            print("ℹ️  Nenhuma alteração para enviar (arquivo já está atualizado)")
+        else:
+            print("✅ Commit realizado")
+            
+            # Pull antes do Push (para sincronizar com remoto)
+            print("🔄 Sincronizando com repositório remoto...")
+            result_pull = subprocess.run(
+                ['git', 'pull', '--rebase', 'origin', 'main'],
+                capture_output=True,
+                text=True,
+                cwd=pasta_raiz
+            )
+            
+            if result_pull.returncode == 0:
+                print("✅ Sincronizado com repositório remoto")
+            else:
+                # Se der erro no pull, tenta sem rebase
+                result_pull = subprocess.run(
+                    ['git', 'pull', 'origin', 'main'],
+                    capture_output=True,
+                    text=True,
+                    cwd=pasta_raiz
+                )
+                if result_pull.returncode == 0:
+                    print("✅ Sincronizado com repositório remoto")
+            
+            # Push
+            print("📤 Enviando para GitHub...")
+            result = subprocess.run(
+                ['git', 'push', 'origin', 'main'],
+                capture_output=True,
+                text=True,
+                cwd=pasta_raiz
+            )
+            
+            if result.returncode == 0:
+                print("🚀 Enviado para GitHub com sucesso!")
+                print("🌐 Disponível em: https://pablogusen.github.io/folha_sgp/")
+                print("⏱️  Aguarde 1-2 minutos para o GitHub Pages atualizar.")
+            else:
+                print("⚠️  Erro ao enviar para GitHub:")
+                print(result.stderr)
+                print("\n💡 Tente manualmente:")
+                print("   git push origin main")
+    else:
+        print("⏸️  Sincronização cancelada.")
+        print("💡 Para enviar depois, execute no terminal:")
+        print("   git add index.html")
+        print("   git commit -m 'Atualização'")
+        print("   git push origin main")
+        
+except KeyboardInterrupt:
+    print("\n\n⏸️  Sincronização cancelada pelo usuário.")
+except Exception as e:
+    print(f"\n⚠️  Erro na sincronização: {e}")
+    print("\n💡 Arquivo index.html foi criado. Para enviar manualmente:")
+    print("   git add index.html")
+    print("   git commit -m 'Atualização'")
+    print("   git push origin main")
+
+print("\n")

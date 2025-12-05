@@ -259,7 +259,137 @@
             border-bottom: 2px solid #721c24 !important;
             text-decoration: none !important;
         }
+        
+        /* ============================================ */
+        /* RESPONSIVIDADE MOBILE */
+        /* ============================================ */
+        @media screen and (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                border-radius: 10px;
+            }
+            
+            header {
+                padding: 20px 15px;
+            }
+            
+            header h1 {
+                font-size: 1.5em;
+                line-height: 1.3;
+            }
+            
+            header p {
+                font-size: 0.9em;
+            }
+            
+            .content {
+                padding: 20px 15px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr !important;
+                gap: 15px;
+            }
+            
+            .stat-card {
+                padding: 20px 15px;
+            }
+            
+            .stat-card h3 {
+                font-size: 0.9em;
+            }
+            
+            .stat-card .valor {
+                font-size: 1.5em;
+            }
+            
+            .search-container {
+                padding: 15px;
+            }
+            
+            .search-container input {
+                font-size: 14px;
+                padding: 12px 15px;
+            }
+            
+            table {
+                font-size: 12px;
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            table th,
+            table td {
+                padding: 8px 6px;
+            }
+            
+            .alert {
+                padding: 15px;
+                font-size: 0.9em;
+            }
+            
+            nav {
+                padding: 15px 10px;
+                text-align: center;
+            }
+            
+            nav button {
+                padding: 10px 20px;
+                font-size: 14px;
+                margin: 5px 3px;
+            }
+            
+            /* Ajustes para seção de Ajuste de Margem */
+            .stats-grid[style*="grid-template-columns: repeat(2, 1fr)"] {
+                grid-template-columns: 1fr !important;
+            }
+            
+            /* Ajuste de títulos menores */
+            h2 {
+                font-size: 1.3em;
+            }
+            
+            h3 {
+                font-size: 1.1em;
+            }
+            
+            h4 {
+                font-size: 1em;
+            }
+            
+            h5 {
+                font-size: 0.95em;
+            }
+        }
+        
+        @media screen and (max-width: 480px) {
+            header h1 {
+                font-size: 1.2em;
+            }
+            
+            .stat-card .valor {
+                font-size: 1.3em;
+            }
+            
+            table {
+                font-size: 11px;
+            }
+            
+            nav button {
+                padding: 8px 15px;
+                font-size: 12px;
+                display: block;
+                width: 100%;
+                margin: 5px 0;
+            }
+        }
     </style>
+
 </head>
 <body>
     <div class="container">
@@ -2524,7 +2654,14 @@
                     
                     // Função para verificar se um desconto está em uma lista
                     const estaEmLista = (descricao, lista) => {
-                        return lista.some(item => descricao.toUpperCase().includes(item.toUpperCase()));
+                        const descUpper = descricao.toUpperCase().trim();
+                        return lista.some(item => {
+                            const itemUpper = item.toUpperCase().trim();
+                            // Verifica correspondência exata ou se contém o item completo
+                            return descUpper === itemUpper || 
+                                   descUpper.includes(itemUpper) ||
+                                   itemUpper.includes(descUpper);
+                        });
                     };
                     
                     // Simular eliminações
@@ -2542,7 +2679,7 @@
                         // Limitar combinações se houver muitos itens (performance)
                         const maxCombinacoes = Math.min(Math.pow(2, descontos.length), 65536);
                         
-                        for (let i = 0; i < maxCombinacoes; i++) {
+                        for (let i = 1; i < maxCombinacoes; i++) { // Começa em 1 para evitar combinação vazia
                             let somaTemp = totalJaEliminado;
                             let combinacaoTemp = [];
                             
@@ -2565,6 +2702,11 @@
                                     melhorPercentual = novoPercentual;
                                 }
                             }
+                        }
+                        
+                        // Se nenhuma combinação atingiu <= 35%, elimina todos do grupo para tentar no próximo
+                        if (melhorCombinacao.length === 0 && descontos.length > 0) {
+                            return descontos;
                         }
                         
                         return melhorCombinacao;
