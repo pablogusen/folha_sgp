@@ -315,17 +315,69 @@
                 padding: 12px 15px;
             }
             
+            /* Tabelas no mobile: transformar em cards */
             table {
-                font-size: 12px;
-                display: block;
-                overflow-x: auto;
-                white-space: nowrap;
-                -webkit-overflow-scrolling: touch;
+                font-size: 11px;
             }
             
-            table th,
+            table thead {
+                display: none;
+            }
+            
+            table, table tbody, table tr, table td {
+                display: block;
+                width: 100%;
+            }
+            
+            table tr {
+                background: white;
+                border: 2px solid #e0e0e0;
+                border-radius: 10px;
+                margin-bottom: 15px;
+                padding: 15px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            }
+            
             table td {
-                padding: 8px 6px;
+                text-align: left !important;
+                padding: 8px 0;
+                border: none;
+                position: relative;
+                padding-left: 50%;
+            }
+            
+            table td:before {
+                content: attr(data-label);
+                position: absolute;
+                left: 0;
+                width: 45%;
+                padding-right: 10px;
+                font-weight: bold;
+                color: #2c3e50;
+                text-align: left;
+            }
+            
+            /* Links de beneficiários como botões */
+            table td a {
+                display: inline-block;
+                background: #2c3e50;
+                color: white !important;
+                padding: 8px 15px;
+                border-radius: 8px;
+                text-decoration: none;
+                font-weight: 600;
+                margin-top: 5px;
+            }
+            
+            table td a:hover {
+                background: #34495e;
+            }
+            
+            /* Ocultar colunas menos importantes no mobile */
+            table td:nth-child(2),  /* CPF */
+            table td:nth-child(3)   /* Data Nascimento */
+            {
+                display: none;
             }
             
             .alert {
@@ -349,6 +401,11 @@
                 grid-template-columns: 1fr !important;
             }
             
+            /* Cards de detalhes individuais */
+            .card-indice {
+                padding: 25px;
+            }
+            
             /* Ajuste de títulos menores */
             h2 {
                 font-size: 1.3em;
@@ -365,6 +422,11 @@
             h5 {
                 font-size: 0.95em;
             }
+            
+            /* Melhorar legibilidade de valores */
+            .valor {
+                word-break: break-word;
+            }
         }
         
         @media screen and (max-width: 480px) {
@@ -377,7 +439,17 @@
             }
             
             table {
+                font-size: 10px;
+            }
+            
+            table td {
+                padding-left: 45%;
                 font-size: 11px;
+            }
+            
+            table td:before {
+                font-size: 10px;
+                width: 40%;
             }
             
             nav button {
@@ -544,625 +616,625 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('328.910.161-49')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de MARIA RODRIGUES DA SILVA ROSA">MARIA RODRIGUES DA SILVA ROSA</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 3.659,12</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 2.884,42</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">78.8%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 774,70</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('412.273.796-68')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de ANTONIO CARLOS RIBEIRO FIGUEIREDO">ANTONIO CARLOS RIBEIRO FIGUEIREDO</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 15.004,87</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 9.352,23</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">62.3%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 5.652,64</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('304.318.911-68')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de GONÇALO HONORATO DE MAGALHAES">GONÇALO HONORATO DE MAGALHAES</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 9.815,09</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 5.644,12</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">57.5%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 4.170,97</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('352.786.171-87')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de LEONIR PEREIRA DE FREITAS">LEONIR PEREIRA DE FREITAS</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 19.738,47</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 11.283,93</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">57.2%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 8.454,54</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('346.150.591-91')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de ADOLAR RODRIGUES DE AMORIM FILHO">ADOLAR RODRIGUES DE AMORIM FILHO</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 13.202,80</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 7.138,10</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">54.1%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 6.064,70</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('274.950.351-53')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de EMANUEL HENRIQUE DE MORAES">EMANUEL HENRIQUE DE MORAES</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 4.608,32</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 2.436,79</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">52.9%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 2.171,53</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('329.553.831-04')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de EUGENIO VIEIRA DE FIGUEIREDO NETO">EUGENIO VIEIRA DE FIGUEIREDO NETO</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 12.609,06</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 6.604,50</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">52.4%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 6.004,56</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('442.276.121-87')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de GEORGE ADRIANO CASTRO E COSTA">GEORGE ADRIANO CASTRO E COSTA</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 11.993,05</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 6.176,32</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">51.5%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 5.816,73</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('928.390.531-87')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de EDER DOURADO">EDER DOURADO</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 15.411,39</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 7.714,19</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">50.1%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 7.697,20</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('412.005.271-00')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de GERALDO DUARTE DOS SANTOS JUNIOR">GERALDO DUARTE DOS SANTOS JUNIOR</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 12.321,52</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 6.115,57</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">49.6%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 6.205,95</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('384.422.801-20')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de GEOVANA MOREIRA DA SILVA">GEOVANA MOREIRA DA SILVA</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 3.404,15</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 1.672,19</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">49.1%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 1.731,96</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('229.827.521-15')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de SINGLAIR CIEKALSKI DE MUSIS">SINGLAIR CIEKALSKI DE MUSIS</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 4.250,37</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 2.043,51</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">48.1%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 2.206,86</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('284.840.371-34')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de ANTONIO LOURENÇO SOBRINHO">ANTONIO LOURENÇO SOBRINHO</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 13.446,67</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 6.442,89</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">47.9%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 7.003,78</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('730.582.541-72')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de RICARDO ECKER ADAMS">RICARDO ECKER ADAMS</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 6.244,05</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 2.985,66</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">47.8%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 3.258,39</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('329.025.811-49')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de VANDERLEY TEIXEIRA DE OLIVEIRA">VANDERLEY TEIXEIRA DE OLIVEIRA</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 13.105,67</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 6.195,04</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">47.3%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 6.910,63</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('531.416.361-68')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de WILSON MUNCIO PORTO">WILSON MUNCIO PORTO</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 7.757,53</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 3.661,96</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">47.2%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 4.095,57</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('029.123.451-89')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de MARCELO LUCAS GONÇALVES TEIXEIRA">MARCELO LUCAS GONÇALVES TEIXEIRA</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 7.330,27</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 3.442,11</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">47.0%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 3.888,16</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('769.082.831-00')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de THALES RODER DE SOUZA">THALES RODER DE SOUZA</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 11.321,88</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 5.272,64</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">46.6%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 6.049,24</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('503.165.401-53')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de JOSÉ ROBERTO NUNES MEDEIROS">JOSÉ ROBERTO NUNES MEDEIROS</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 10.348,26</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 4.805,69</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">46.4%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 5.542,57</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('654.821.581-87')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de CRISTIANE APARECIDA DE MORAES ALVES">CRISTIANE APARECIDA DE MORAES ALVES</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 8.411,52</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 3.869,77</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">46.0%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 4.541,75</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('395.421.061-49')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de ALEXANDRE BEZERRA DO NASCIMENTO">ALEXANDRE BEZERRA DO NASCIMENTO</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 12.942,08</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 5.936,15</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">45.9%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 7.005,93</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('328.683.161-15')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de LUCIA PEREIRA DA SILVA SOUZA">LUCIA PEREIRA DA SILVA SOUZA</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 13.281,43</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 5.977,24</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">45.0%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 7.304,19</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('241.149.011-91')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de BENEDITO LUIZ DE ASSIS">BENEDITO LUIZ DE ASSIS</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 13.577,41</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 6.086,27</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">44.8%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 7.491,14</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('616.265.381-15')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de VERENICE CORREA DE MORAES">VERENICE CORREA DE MORAES</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 12.402,11</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 5.479,41</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">44.2%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 6.922,70</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('954.664.101-44')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de WANDERSON DOS SANTOS OLIVEIRA">WANDERSON DOS SANTOS OLIVEIRA</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 4.250,37</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 1.862,01</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">43.8%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 2.388,36</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('352.433.331-15')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de ANTONIO AUGUSTO MIRANDA SOUSA">ANTONIO AUGUSTO MIRANDA SOUSA</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 11.881,39</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 5.187,26</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">43.7%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 6.694,13</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('734.894.251-20')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de CAIO CEZAR COSTA ALVES">CAIO CEZAR COSTA ALVES</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 11.374,02</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 4.900,36</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">43.1%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 6.473,66</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('406.499.201-63')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de REGINA OLIVA DE CAMPOS">REGINA OLIVA DE CAMPOS</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 12.226,15</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 5.231,03</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">42.8%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 6.995,12</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('986.592.351-34')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de SIDNEI PINHO DOS SANTOS">SIDNEI PINHO DOS SANTOS</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 2.113,24</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 899,20</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">42.6%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 1.214,04</td>
-                                    <td style="color: #a71d2a; font-weight: bold; text-align: center; font-weight: bold;">Sim</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('175.801.701-59')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de RUBENS DOS REIS PAES">RUBENS DOS REIS PAES</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 14.560,32</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 6.047,89</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">41.5%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 8.512,43</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('515.515.943-15')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de GEORGE WELLINGTON MOREIRA SPINDOLA">GEORGE WELLINGTON MOREIRA SPINDOLA</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 9.067,92</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 3.723,14</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">41.1%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 5.344,78</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('325.711.191-68')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de CARLOS ALBERTO NUNES DE ARAUJO">CARLOS ALBERTO NUNES DE ARAUJO</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 23.698,11</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 9.713,83</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">41.0%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 13.984,28</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('313.976.031-00')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de JOVANILDO ANTÔNIO DA SILVA">JOVANILDO ANTÔNIO DA SILVA</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 14.801,48</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 6.002,70</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">40.6%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 8.798,78</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('928.957.431-34')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de CINTHIA APARECIDA DE SOUZA RAMALHO">CINTHIA APARECIDA DE SOUZA RAMALHO</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 3.197,22</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 1.295,11</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">40.5%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 1.902,11</td>
-                                    <td style="color: #a71d2a; font-weight: bold; text-align: center; font-weight: bold;">Sim</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('010.963.061-07')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de GRACIELE MACIEL DE SOUZA">GRACIELE MACIEL DE SOUZA</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 22.400,52</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 9.022,85</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">40.3%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 13.377,67</td>
-                                    <td style="color: #a71d2a; font-weight: bold; text-align: center; font-weight: bold;">Sim</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('948.971.311-20')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de WILLIAN DE CARVALHO BATISTA">WILLIAN DE CARVALHO BATISTA</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 6.434,21</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 2.574,51</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">40.0%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 3.859,70</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('032.766.961-69')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de KIMBERLY OLIVEIRA DANTAS">KIMBERLY OLIVEIRA DANTAS</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 7.116,80</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 2.823,59</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">39.7%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 4.293,21</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('514.184.601-68')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de CLAUDIA NOGUEIRA SILVA">CLAUDIA NOGUEIRA SILVA</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 9.295,91</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 3.686,19</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">39.7%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 5.609,72</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('027.419.121-06')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de FABIANA PADILHA DO PRADO">FABIANA PADILHA DO PRADO</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 14.140,10</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 5.569,89</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">39.4%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 8.570,21</td>
-                                    <td style="color: #a71d2a; font-weight: bold; text-align: center; font-weight: bold;">Sim</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('459.034.171-91')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de GONÇALO MAXIMIANO ALMEIDA ARRUDA">GONÇALO MAXIMIANO ALMEIDA ARRUDA</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 12.069,74</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 4.734,77</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">39.2%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 7.334,97</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('395.826.981-87')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de EMERSON LUIS NASCIMENTO DE BRITO">EMERSON LUIS NASCIMENTO DE BRITO</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 12.988,61</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 5.086,29</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">39.2%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 7.902,32</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('011.291.381-43')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de LAIS FIGUEIREDO COSTA MARQUES RIZZOTTO">LAIS FIGUEIREDO COSTA MARQUES RIZZOTTO</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 12.994,22</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 5.086,79</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">39.1%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 7.907,43</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('062.414.201-94')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de ADÁLIA CAROLINA DA SILVA">ADÁLIA CAROLINA DA SILVA</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 5.061,79</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 1.949,77</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">38.5%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 3.112,02</td>
-                                    <td style="color: #a71d2a; font-weight: bold; text-align: center; font-weight: bold;">Sim</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('428.030.631-15')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de JOSÉ LINO DO CARMO LADISLAU">JOSÉ LINO DO CARMO LADISLAU</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 11.387,05</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 4.385,25</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">38.5%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 7.001,80</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('544.259.721-04')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de EDEN CESAR RODRIGUES DA COSTA">EDEN CESAR RODRIGUES DA COSTA</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 10.408,80</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 3.969,40</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">38.1%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 6.439,40</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('881.292.762-91')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de LUDMILLA KELLY DA SILVA DUARTE">LUDMILLA KELLY DA SILVA DUARTE</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 3.404,15</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 1.295,25</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">38.0%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 2.108,90</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('766.082.806-10')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de JOSÉ CARLOS REZENDE">JOSÉ CARLOS REZENDE</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 19.487,08</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 7.387,74</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">37.9%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 12.099,34</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('340.395.621-00')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de EDSON ANGELO DA SILVA">EDSON ANGELO DA SILVA</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 17.724,89</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 6.716,37</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">37.9%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 11.008,52</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('405.833.501-78')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de JOSÉ ANTÔNIO PEIXOTO">JOSÉ ANTÔNIO PEIXOTO</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 12.408,61</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 4.686,34</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">37.8%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 7.722,27</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('327.689.071-20')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de VALMIRA SALES DA CRUZ">VALMIRA SALES DA CRUZ</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 13.333,57</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 5.017,96</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">37.6%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 8.315,61</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('028.614.921-47')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de NELSON DE CARVALHO JUNIOR">NELSON DE CARVALHO JUNIOR</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 13.046,36</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 4.893,63</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">37.5%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 8.152,73</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('006.415.091-70')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de DIEGO CONINGHAM DE SIQUEIRA">DIEGO CONINGHAM DE SIQUEIRA</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 17.598,82</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 6.570,07</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">37.3%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 11.028,75</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('352.442.911-49')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de ITALO GRIGGI FILHO">ITALO GRIGGI FILHO</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 12.190,64</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 4.519,74</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">37.1%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 7.670,90</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('293.317.731-53')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de GENIVALDO SANTANA DA COSTA">GENIVALDO SANTANA DA COSTA</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 24.155,55</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 8.943,76</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">37.0%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 15.211,79</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('970.505.391-04')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de JEFERSON DONATO">JEFERSON DONATO</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 7.695,74</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 2.839,73</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">36.9%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 4.856,01</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('005.411.141-23')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de ANDRE VIEIRA DALBERTO">ANDRE VIEIRA DALBERTO</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 17.546,68</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 6.468,15</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">36.9%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 11.078,53</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('535.256.121-68')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de ROSANGELA DAMAZIO MACHADO">ROSANGELA DAMAZIO MACHADO</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 5.217,17</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 1.915,42</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">36.7%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 3.301,75</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('019.720.761-83')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de DIEGO CASTRO DE MELO">DIEGO CASTRO DE MELO</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 17.546,68</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 6.436,45</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">36.7%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 11.110,23</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('814.594.161-04')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de MARILZA CHAGAS LOPES DE SANTANA">MARILZA CHAGAS LOPES DE SANTANA</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 6.633,03</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 2.394,09</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">36.1%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 4.238,94</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('676.687.632-87')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de MAIRA FRANCISCA DOS SANTOS NIENOW">MAIRA FRANCISCA DOS SANTOS NIENOW</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 13.046,36</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 4.694,62</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">36.0%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 8.351,74</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('639.146.627-00')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de MARIA DAS DORES CONCEIÇÃO DA SILVA">MARIA DAS DORES CONCEIÇÃO DA SILVA</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 11.269,74</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 4.043,83</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">35.9%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 7.225,91</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('012.461.971-11')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de CARLOS GUSTAVO DORILEO DA SILVA">CARLOS GUSTAVO DORILEO DA SILVA</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 12.277,11</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 4.396,61</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">35.8%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 7.880,50</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('867.019.081-87')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de DEBHURA CONCEIÇÃO DE ALMEIDA">DEBHURA CONCEIÇÃO DE ALMEIDA</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 3.659,12</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 1.310,25</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">35.8%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 2.348,87</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('033.113.661-90')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de EDER BELEM GOMES">EDER BELEM GOMES</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 8.925,93</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 3.166,15</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">35.5%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 5.759,78</td>
-                                    <td style="color: #a71d2a; font-weight: bold; text-align: center; font-weight: bold;">Sim</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('022.204.361-01')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de ELIZEU FRANCISCO DOS SANTOS">ELIZEU FRANCISCO DOS SANTOS</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 14.604,23</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 5.177,87</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">35.5%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 9.426,36</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('384.653.701-25')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de MARA REGINA VISNADI">MARA REGINA VISNADI</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 11.092,54</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 3.926,49</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">35.4%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 7.166,05</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('040.115.741-55')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de JANYNE LOURENÇO MOURA">JANYNE LOURENÇO MOURA</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 6.257,81</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 2.213,20</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">35.4%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 4.044,61</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('577.632.759-87')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de FLAVIO DONIZETE GARCIA">FLAVIO DONIZETE GARCIA</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 8.411,52</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 2.968,50</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">35.3%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 5.443,02</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
-                                </tr>
-                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('384.368.251-87')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de LEANDRO BATISTA DA SILVA">LEANDRO BATISTA DA SILVA</a></strong></td>
-                                    <td>Ativo</td>
-                                    <td>R$ 11.269,74</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ 3.975,03</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">35.3%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ 7.294,71</td>
-                                    <td style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('328.910.161-49')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de MARIA RODRIGUES DA SILVA ROSA">MARIA RODRIGUES DA SILVA ROSA</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 3.659,12</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 2.884,42</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">78.8%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 774,70</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('412.273.796-68')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de ANTONIO CARLOS RIBEIRO FIGUEIREDO">ANTONIO CARLOS RIBEIRO FIGUEIREDO</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 15.004,87</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 9.352,23</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">62.3%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 5.652,64</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('304.318.911-68')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de GONÇALO HONORATO DE MAGALHAES">GONÇALO HONORATO DE MAGALHAES</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 9.815,09</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 5.644,12</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">57.5%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 4.170,97</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('352.786.171-87')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de LEONIR PEREIRA DE FREITAS">LEONIR PEREIRA DE FREITAS</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 19.738,47</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 11.283,93</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">57.2%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 8.454,54</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('346.150.591-91')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de ADOLAR RODRIGUES DE AMORIM FILHO">ADOLAR RODRIGUES DE AMORIM FILHO</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 13.202,80</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 7.138,10</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">54.1%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 6.064,70</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('274.950.351-53')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de EMANUEL HENRIQUE DE MORAES">EMANUEL HENRIQUE DE MORAES</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 4.608,32</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 2.436,79</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">52.9%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 2.171,53</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('329.553.831-04')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de EUGENIO VIEIRA DE FIGUEIREDO NETO">EUGENIO VIEIRA DE FIGUEIREDO NETO</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 12.609,06</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 6.604,50</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">52.4%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 6.004,56</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('442.276.121-87')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de GEORGE ADRIANO CASTRO E COSTA">GEORGE ADRIANO CASTRO E COSTA</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 11.993,05</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 6.176,32</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">51.5%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 5.816,73</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('928.390.531-87')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de EDER DOURADO">EDER DOURADO</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 15.411,39</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 7.714,19</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">50.1%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 7.697,20</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('412.005.271-00')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de GERALDO DUARTE DOS SANTOS JUNIOR">GERALDO DUARTE DOS SANTOS JUNIOR</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 12.321,52</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 6.115,57</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">49.6%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 6.205,95</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('384.422.801-20')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de GEOVANA MOREIRA DA SILVA">GEOVANA MOREIRA DA SILVA</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 3.404,15</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 1.672,19</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">49.1%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 1.731,96</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('229.827.521-15')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de SINGLAIR CIEKALSKI DE MUSIS">SINGLAIR CIEKALSKI DE MUSIS</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 4.250,37</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 2.043,51</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">48.1%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 2.206,86</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('284.840.371-34')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de ANTONIO LOURENÇO SOBRINHO">ANTONIO LOURENÇO SOBRINHO</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 13.446,67</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 6.442,89</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">47.9%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 7.003,78</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('730.582.541-72')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de RICARDO ECKER ADAMS">RICARDO ECKER ADAMS</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 6.244,05</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 2.985,66</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">47.8%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 3.258,39</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('329.025.811-49')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de VANDERLEY TEIXEIRA DE OLIVEIRA">VANDERLEY TEIXEIRA DE OLIVEIRA</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 13.105,67</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 6.195,04</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">47.3%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 6.910,63</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('531.416.361-68')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de WILSON MUNCIO PORTO">WILSON MUNCIO PORTO</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 7.757,53</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 3.661,96</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">47.2%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 4.095,57</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('029.123.451-89')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de MARCELO LUCAS GONÇALVES TEIXEIRA">MARCELO LUCAS GONÇALVES TEIXEIRA</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 7.330,27</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 3.442,11</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">47.0%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 3.888,16</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('769.082.831-00')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de THALES RODER DE SOUZA">THALES RODER DE SOUZA</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 11.321,88</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 5.272,64</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">46.6%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 6.049,24</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('503.165.401-53')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de JOSÉ ROBERTO NUNES MEDEIROS">JOSÉ ROBERTO NUNES MEDEIROS</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 10.348,26</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 4.805,69</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">46.4%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 5.542,57</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('654.821.581-87')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de CRISTIANE APARECIDA DE MORAES ALVES">CRISTIANE APARECIDA DE MORAES ALVES</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 8.411,52</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 3.869,77</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">46.0%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 4.541,75</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('395.421.061-49')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de ALEXANDRE BEZERRA DO NASCIMENTO">ALEXANDRE BEZERRA DO NASCIMENTO</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 12.942,08</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 5.936,15</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">45.9%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 7.005,93</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('328.683.161-15')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de LUCIA PEREIRA DA SILVA SOUZA">LUCIA PEREIRA DA SILVA SOUZA</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 13.281,43</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 5.977,24</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">45.0%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 7.304,19</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('241.149.011-91')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de BENEDITO LUIZ DE ASSIS">BENEDITO LUIZ DE ASSIS</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 13.577,41</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 6.086,27</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">44.8%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 7.491,14</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('616.265.381-15')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de VERENICE CORREA DE MORAES">VERENICE CORREA DE MORAES</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 12.402,11</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 5.479,41</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">44.2%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 6.922,70</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('954.664.101-44')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de WANDERSON DOS SANTOS OLIVEIRA">WANDERSON DOS SANTOS OLIVEIRA</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 4.250,37</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 1.862,01</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">43.8%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 2.388,36</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('352.433.331-15')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de ANTONIO AUGUSTO MIRANDA SOUSA">ANTONIO AUGUSTO MIRANDA SOUSA</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 11.881,39</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 5.187,26</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">43.7%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 6.694,13</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('734.894.251-20')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de CAIO CEZAR COSTA ALVES">CAIO CEZAR COSTA ALVES</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 11.374,02</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 4.900,36</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">43.1%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 6.473,66</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('406.499.201-63')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de REGINA OLIVA DE CAMPOS">REGINA OLIVA DE CAMPOS</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 12.226,15</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 5.231,03</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">42.8%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 6.995,12</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('986.592.351-34')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de SIDNEI PINHO DOS SANTOS">SIDNEI PINHO DOS SANTOS</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 2.113,24</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 899,20</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">42.6%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 1.214,04</td>
+                                    <td data-label="Rescisão" style="color: #a71d2a; font-weight: bold; text-align: center; font-weight: bold;">Sim</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('175.801.701-59')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de RUBENS DOS REIS PAES">RUBENS DOS REIS PAES</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 14.560,32</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 6.047,89</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">41.5%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 8.512,43</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('515.515.943-15')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de GEORGE WELLINGTON MOREIRA SPINDOLA">GEORGE WELLINGTON MOREIRA SPINDOLA</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 9.067,92</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 3.723,14</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">41.1%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 5.344,78</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('325.711.191-68')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de CARLOS ALBERTO NUNES DE ARAUJO">CARLOS ALBERTO NUNES DE ARAUJO</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 23.698,11</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 9.713,83</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">41.0%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 13.984,28</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('313.976.031-00')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de JOVANILDO ANTÔNIO DA SILVA">JOVANILDO ANTÔNIO DA SILVA</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 14.801,48</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 6.002,70</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">40.6%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 8.798,78</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('928.957.431-34')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de CINTHIA APARECIDA DE SOUZA RAMALHO">CINTHIA APARECIDA DE SOUZA RAMALHO</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 3.197,22</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 1.295,11</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">40.5%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 1.902,11</td>
+                                    <td data-label="Rescisão" style="color: #a71d2a; font-weight: bold; text-align: center; font-weight: bold;">Sim</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('010.963.061-07')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de GRACIELE MACIEL DE SOUZA">GRACIELE MACIEL DE SOUZA</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 22.400,52</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 9.022,85</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">40.3%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 13.377,67</td>
+                                    <td data-label="Rescisão" style="color: #a71d2a; font-weight: bold; text-align: center; font-weight: bold;">Sim</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('948.971.311-20')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de WILLIAN DE CARVALHO BATISTA">WILLIAN DE CARVALHO BATISTA</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 6.434,21</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 2.574,51</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">40.0%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 3.859,70</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('032.766.961-69')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de KIMBERLY OLIVEIRA DANTAS">KIMBERLY OLIVEIRA DANTAS</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 7.116,80</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 2.823,59</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">39.7%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 4.293,21</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('514.184.601-68')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de CLAUDIA NOGUEIRA SILVA">CLAUDIA NOGUEIRA SILVA</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 9.295,91</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 3.686,19</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">39.7%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 5.609,72</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('027.419.121-06')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de FABIANA PADILHA DO PRADO">FABIANA PADILHA DO PRADO</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 14.140,10</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 5.569,89</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">39.4%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 8.570,21</td>
+                                    <td data-label="Rescisão" style="color: #a71d2a; font-weight: bold; text-align: center; font-weight: bold;">Sim</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('459.034.171-91')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de GONÇALO MAXIMIANO ALMEIDA ARRUDA">GONÇALO MAXIMIANO ALMEIDA ARRUDA</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 12.069,74</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 4.734,77</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">39.2%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 7.334,97</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('395.826.981-87')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de EMERSON LUIS NASCIMENTO DE BRITO">EMERSON LUIS NASCIMENTO DE BRITO</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 12.988,61</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 5.086,29</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">39.2%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 7.902,32</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('011.291.381-43')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de LAIS FIGUEIREDO COSTA MARQUES RIZZOTTO">LAIS FIGUEIREDO COSTA MARQUES RIZZOTTO</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 12.994,22</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 5.086,79</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">39.1%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 7.907,43</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('062.414.201-94')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de ADÁLIA CAROLINA DA SILVA">ADÁLIA CAROLINA DA SILVA</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 5.061,79</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 1.949,77</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">38.5%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 3.112,02</td>
+                                    <td data-label="Rescisão" style="color: #a71d2a; font-weight: bold; text-align: center; font-weight: bold;">Sim</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('428.030.631-15')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de JOSÉ LINO DO CARMO LADISLAU">JOSÉ LINO DO CARMO LADISLAU</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 11.387,05</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 4.385,25</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">38.5%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 7.001,80</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('544.259.721-04')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de EDEN CESAR RODRIGUES DA COSTA">EDEN CESAR RODRIGUES DA COSTA</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 10.408,80</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 3.969,40</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">38.1%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 6.439,40</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('881.292.762-91')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de LUDMILLA KELLY DA SILVA DUARTE">LUDMILLA KELLY DA SILVA DUARTE</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 3.404,15</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 1.295,25</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">38.0%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 2.108,90</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('766.082.806-10')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de JOSÉ CARLOS REZENDE">JOSÉ CARLOS REZENDE</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 19.487,08</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 7.387,74</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">37.9%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 12.099,34</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('340.395.621-00')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de EDSON ANGELO DA SILVA">EDSON ANGELO DA SILVA</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 17.724,89</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 6.716,37</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">37.9%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 11.008,52</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('405.833.501-78')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de JOSÉ ANTÔNIO PEIXOTO">JOSÉ ANTÔNIO PEIXOTO</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 12.408,61</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 4.686,34</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">37.8%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 7.722,27</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('327.689.071-20')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de VALMIRA SALES DA CRUZ">VALMIRA SALES DA CRUZ</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 13.333,57</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 5.017,96</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">37.6%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 8.315,61</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('028.614.921-47')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de NELSON DE CARVALHO JUNIOR">NELSON DE CARVALHO JUNIOR</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 13.046,36</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 4.893,63</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">37.5%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 8.152,73</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('006.415.091-70')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de DIEGO CONINGHAM DE SIQUEIRA">DIEGO CONINGHAM DE SIQUEIRA</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 17.598,82</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 6.570,07</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">37.3%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 11.028,75</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('352.442.911-49')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de ITALO GRIGGI FILHO">ITALO GRIGGI FILHO</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 12.190,64</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 4.519,74</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">37.1%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 7.670,90</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('293.317.731-53')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de GENIVALDO SANTANA DA COSTA">GENIVALDO SANTANA DA COSTA</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 24.155,55</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 8.943,76</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">37.0%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 15.211,79</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('970.505.391-04')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de JEFERSON DONATO">JEFERSON DONATO</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 7.695,74</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 2.839,73</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">36.9%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 4.856,01</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('005.411.141-23')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de ANDRE VIEIRA DALBERTO">ANDRE VIEIRA DALBERTO</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 17.546,68</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 6.468,15</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">36.9%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 11.078,53</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('535.256.121-68')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de ROSANGELA DAMAZIO MACHADO">ROSANGELA DAMAZIO MACHADO</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 5.217,17</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 1.915,42</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">36.7%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 3.301,75</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('019.720.761-83')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de DIEGO CASTRO DE MELO">DIEGO CASTRO DE MELO</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 17.546,68</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 6.436,45</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">36.7%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 11.110,23</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('814.594.161-04')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de MARILZA CHAGAS LOPES DE SANTANA">MARILZA CHAGAS LOPES DE SANTANA</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 6.633,03</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 2.394,09</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">36.1%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 4.238,94</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('676.687.632-87')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de MAIRA FRANCISCA DOS SANTOS NIENOW">MAIRA FRANCISCA DOS SANTOS NIENOW</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 13.046,36</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 4.694,62</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">36.0%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 8.351,74</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('639.146.627-00')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de MARIA DAS DORES CONCEIÇÃO DA SILVA">MARIA DAS DORES CONCEIÇÃO DA SILVA</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 11.269,74</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 4.043,83</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">35.9%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 7.225,91</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('012.461.971-11')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de CARLOS GUSTAVO DORILEO DA SILVA">CARLOS GUSTAVO DORILEO DA SILVA</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 12.277,11</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 4.396,61</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">35.8%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 7.880,50</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('867.019.081-87')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de DEBHURA CONCEIÇÃO DE ALMEIDA">DEBHURA CONCEIÇÃO DE ALMEIDA</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 3.659,12</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 1.310,25</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">35.8%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 2.348,87</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('033.113.661-90')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de EDER BELEM GOMES">EDER BELEM GOMES</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 8.925,93</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 3.166,15</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">35.5%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 5.759,78</td>
+                                    <td data-label="Rescisão" style="color: #a71d2a; font-weight: bold; text-align: center; font-weight: bold;">Sim</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('022.204.361-01')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de ELIZEU FRANCISCO DOS SANTOS">ELIZEU FRANCISCO DOS SANTOS</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 14.604,23</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 5.177,87</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">35.5%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 9.426,36</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('384.653.701-25')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de MARA REGINA VISNADI">MARA REGINA VISNADI</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 11.092,54</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 3.926,49</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">35.4%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 7.166,05</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('040.115.741-55')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de JANYNE LOURENÇO MOURA">JANYNE LOURENÇO MOURA</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 6.257,81</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 2.213,20</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">35.4%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 4.044,61</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('577.632.759-87')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de FLAVIO DONIZETE GARCIA">FLAVIO DONIZETE GARCIA</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 8.411,52</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 2.968,50</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">35.3%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 5.443,02</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
+                                </tr>
+                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('384.368.251-87')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de LEANDRO BATISTA DA SILVA">LEANDRO BATISTA DA SILVA</a></strong></td>
+                                    <td data-label="Situação">Ativo</td>
+                                    <td data-label="Margem Consignável">R$ 11.269,74</td>
+                                    <td data-label="Descontos Extras" style="color: #a71d2a; font-weight: bold;">R$ 3.975,03</td>
+                                    <td data-label="% Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">35.3%</td>
+                                    <td data-label="Valor Líquido" style="color: #2c3e50; font-weight: bold;">R$ 7.294,71</td>
+                                    <td data-label="Rescisão" style="color: #2c3e50; text-align: center; font-weight: bold;">Não</td>
                                 </tr>
                             </tbody>
                         </table>
