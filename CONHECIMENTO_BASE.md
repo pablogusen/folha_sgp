@@ -2,7 +2,7 @@
 
 **Sistema:** Análise de Folha de Pagamento - ALMT  
 **Criado:** 23/10/2025  
-**Última atualização:** 09/12/2025
+**Última atualização:** 10/12/2025
 
 ---
 
@@ -342,6 +342,89 @@ from datetime import datetime
 3. **PDFs são inconsistentes:** Espaços duplos, quebras de página, formatação variável
 4. **Parametrização externa:** Excel é melhor que hardcode para regras de negócio
 5. **Validação cruzada:** JSON backup é fonte da verdade, HTML pode ter bugs de exibição
+
+---
+
+## 📅 ATUALIZAÇÕES - DEZEMBRO 2025
+
+### 10/12/2025 - Otimização e Correções Críticas
+
+#### 🎯 Melhorias Implementadas
+
+**1. Remoção de Seções Redundantes**
+- ❌ Removidas 4 seções de "Impacto Financeiro" (por provento/desconto)
+- ❌ Removido Chart.js (210 linhas) - gráfico de pizza não utilizado
+- ✅ Redução: ~33 KB no HTML final (1.110 KB → 1.077 KB)
+
+**2. Nova Seção: Composição de Rendimentos**
+- ✅ 137 eventos classificados em 4 tabelas visuais
+- 🟢 Proventos (rendimentos)
+- 🟡 Descontos Obrigatórios (INSS, IR, pensão)
+- 🔴 Descontos Facultativos (consignados, empréstimos)
+- ⚪ Omitir do Cálculo (informativos)
+
+**3. Transparência nos Relatórios Individuais**
+- ✅ Nova seção "OUTROS EVENTOS INFORMATIVOS"
+- ℹ️ Exibe eventos marcados como "Omitir do cálculo"
+- 📝 Explicações claras sobre por que não afetam margem
+- Exemplos: Auxílio Alimentação, Auxílio Saúde, adiantamentos
+
+**4. Correção da Tabela de Beneficiários Críticos**
+- ❌ ANTES: Mostrava `liquido_final` duplicado em colunas erradas
+- ✅ AGORA: 9 colunas detalhadas e corretas:
+  - Proventos Brutos (verde)
+  - Descontos Obrigatórios (laranja)
+  - **Margem Consignável** = Proventos - Desc. Obrig (azul) ⬅️ CORRIGIDO
+  - Descontos Extras comprometidos (vermelho)
+  - **% sobre Margem** (percentual correto) ⬅️ CORRIGIDO
+  - Líquido Final recebido
+  - Indicador de Rescisão
+
+#### 🔍 Validações Realizadas
+
+**Caso de Teste: CLAUDIANO ALMEIDA**
+```
+Proventos:                    R$ 1,518.00
+Descontos Obrigatórios:       R$   113.85
+Margem Consignável:           R$ 1,404.15  ⬅️ Base correta
+Descontos Extras:             R$   775.47
+% sobre Margem:               55.2% CRÍTICO ✅
+Eventos Informativos:         R$ 2,000.00 (não contam)
+Líquido Final:                R$ 2,628.68 ✅
+```
+
+#### 📊 Dados Estruturais Adicionados
+
+```python
+# Novo campo no dicionário de dados
+'eventos_informativos': []  # Eventos que não afetam margem
+
+# Novo campo em beneficiarios_criticos
+{
+    'total_proventos': 0,
+    'total_descontos_obrigatorios': 0,
+    'margem_consignavel': 0,  # Calculada corretamente
+    'percentual_sobre_margem': 0  # % correto
+}
+```
+
+#### 🎯 Princípios Validados
+
+1. **Classificação no Excel é CORRETA** - decisão institucional do usuário
+2. **Eventos "Omitir do cálculo"** não afetam margem consignável (por design)
+3. **Líquido do PDF** = Proventos - Todos Descontos + Informativos ✅
+4. **Margem Consignável** = Proventos - Descontos Obrigatórios ✅
+5. **% Crítico** = Descontos Extras ÷ Margem Consignável × 100 ✅
+
+#### 📝 Arquivos Modificados
+
+- `gerar_relatorio.py` (2,381 linhas após otimização)
+  - Linha 54: Adicionado `eventos_informativos: []`
+  - Linha 181: Roteamento de eventos "Omitir"
+  - Linhas 1059-1073: Cálculo correto de `margem_consignavel` e `percentual_sobre_margem`
+  - Linhas 1165-1220: Seção Composição de Rendimentos
+  - Linhas 1570-1620: Seção Eventos Informativos (individual)
+  - Linhas 1105-1145: Tabela críticos corrigida (9 colunas)
 
 ---
 
