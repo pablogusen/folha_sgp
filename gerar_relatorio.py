@@ -4,6 +4,33 @@ import json
 import os
 from datetime import datetime
 from pathlib import Path
+import pandas as pd
+
+# Carregar mapeamento de eventos da planilha Descricao_Comp_Rend.xlsx
+def carregar_mapeamento_eventos():
+    """
+    Carrega o mapeamento de código/descrição → tipo de evento
+    da planilha Descricao_Comp_Rend.xlsx
+    """
+    try:
+        caminho_planilha = Path(__file__).parent / 'Descricao_Comp_Rend.xlsx'
+        df_eventos = pd.read_excel(caminho_planilha, sheet_name='Composição de Rendimentos')
+        
+        mapeamento = {}
+        for _, row in df_eventos.iterrows():
+            codigo = str(row['CÓDIGO']).strip()
+            descricao = str(row['DESCRIÇÃO EVENTOS']).strip().upper()
+            tipo = str(row['TIPO']).strip()
+            mapeamento[(codigo, descricao)] = tipo
+        
+        return mapeamento
+    except Exception as e:
+        print(f"⚠️  Aviso: Não foi possível carregar o mapeamento de eventos: {e}")
+        print("   O sistema usará a classificação padrão.")
+        return {}
+
+# Carregar mapeamento global
+MAPEAMENTO_EVENTOS = carregar_mapeamento_eventos()
 
 def formatar_moeda_br(valor):
     """Formata valor monetário no padrão brasileiro: 1.450,15"""
@@ -26,6 +53,7 @@ def extrair_dados_ativos(linhas, caminho_pdf, numero_pagina=None):
         'proventos': [],
         'descontos_obrigatorios': [],
         'descontos_extras': [],
+        'eventos_informativos': [],  # NOVO: eventos que não entram no cálculo da margem
         'total_proventos': 0,
         'total_descontos_obrigatorios': 0,
         'total_descontos_extras': 0,
@@ -127,58 +155,11 @@ def extrair_dados_ativos(linhas, caminho_pdf, numero_pagina=None):
                         valor_evento = valor1
                         base_calculo = valor2
                         
-                        # Classificar o evento
+                        # === NOVA CLASSIFICAÇÃO BASEADA NA PLANILHA Descricao_Comp_Rend.xlsx ===
                         descricao_upper = descricao.upper()
                         
-                        # PROVENTOS (lista oficial completa)
-                        palavras_provento = [
-                            '1/3 DE FERIAS', '1/3 FÉRIAS FIXO - RESCISÃO', '1/3 FERIAS PROPORCIONAIS RESCISÃO',
-                            '13º SALÁRIO FIXO RESCISÃO', 'ABONO DE PERMANENCIA', 'ADIANTAMENTO 13º SALARIO',
-                            'AUXILIO ALIMENTACAO', 'AUXÍLIO ASSESSORIA DE SEGURANÇA LEGISLATIVA',
-                            'AUXILIO DOENÇA', 'AUXÍLIO SAÚDE', 'BENEFICIO RES. 812/2007',
-                            'CHEFIA RES. N. 4.456/2016', 'COMPLEMENTO SALARIAL', 'DIF. VENC/PROVENTO',
-                            'DIFERENÇA DE REMUNERAÇÃO', 'DIFERENCA DE SALARIO POR SUBSTITUICAO',
-                            'FERIAS INDENIZADAS', 'FÉRIAS PROPORCIONAL (INDENIZAÇÃO)',
-                            'FUNCAO DE CONFIANCA ART 59/7.860', 'GRATIFICAÇÃO POR SUBSTITUIÇÃO',
-                            'HORA EXTRA 50 %', 'INDENIZACAO TRABALHISTA', 'INSALUBRIDADE 20%',
-                            'LICENÇA MATERNIDADE', 'LICENCA PREMIO', 'REPRESENTACAO CONF LC 04/90 - ART. 59',
-                            'SALARIO DE SUBSTITUIÇÃO', 'SALARIO FAMILIA', 'SALDO AFASTAMENTO',
-                            'SUBSIDIO', 'VERBAS INDENIZATORIAS', 'VPNI'
-                        ]
-                        
-                        # DESCONTOS OBRIGATÓRIOS (lista oficial completa)
-                        palavras_desconto_obrigatorio = [
-                            'ABATIMENTO REMUNERAÇÃO - CEDENTE', 'BENEFÍCIO DE PECÚLIO/PENSÃO POR INVALIDEZ',
-                            'BENEFÍCIO DE PECÚLIO/PENSÃO POR MORTE', 'CUIABAPREV', 'DESC ADTO FERIAS',
-                            'DETERMINAÇÃO JUDICIAL', 'DETERMINACAO JUDICIAL (PERCENTUAL) - 3',
-                            'DEVOLUCAO POR PAGAMENTO INDEVIDO', 'FALTAS', 'I R R F',
-                            'IMPOSTO DE RENDA PESSOA FISICA', 'INSS - PREVIDENCIA',
-                            'INSS 13º SALÁRIO - PREVIDÊNCIA', 'IRRF 13.º SALÁRIO', 'IRRF FÉRIAS',
-                            'ISSSPL - PLANO FINANCEIRO', 'ISSSPL - PLANO PREVIDENCIARIO', 'MTPREV',
-                            'PENSÃO ALIMENTÍCIA', 'PENSAO ALIMENTICIA SOBRE FERIAS',
-                            'PREVCOM CONTRIBUICAO ATIVO ANTERIOR', 'PREVCOM PARTICIPANTE ATIVO MIGRADO',
-                            'REDUTOR PEC 41/2003 - TETO CONSTITUCIONA'
-                        ]
-                        
-                        # DESCONTOS FACULTATIVOS (lista oficial completa)
-                        palavras_desconto_facultativo = [
-                            'APRALE', 'ASLEM', 'BIG CARD - CARTÃO BENEFÍCIO', 'BMG CARTÃO CREDITO',
-                            'CONSIGNAÇÃO B.BRASIL', 'CONSIGNAÇÃO BANCOOB', 'CONSIGNAÇÃO BRADESCO',
-                            'CONSIGNACAO CEF', 'CONSIGNAÇÃO DAYCOVAL', 'CONSIGNAÇÃO EAGLE',
-                            'CONSIGNAÇÃO EAGLE - RESCISÃO', 'CONSIGNAÇÃO SICOOB - RESCISÃO',
-                            'CONSIGNAÇÃO SICOOB SERVIDOR', 'CONSIGNAÇÃO SICREDI', 'CONSIGNAÇÃO SUDACRED',
-                            'CONSIGNAÇÃO SUDACRED - RESCISÃO', 'CONTA CAPITAL - CREDLEGIS',
-                            'EAGLE - CARTÃO BENEFÍCIO', 'EAGLE - CARTÃO CREDITO',
-                            'GEAP SAÚDE - COOPARTICIPAÇÃO', 'GEAP SAÚDE - MENSALIDADE', 'MT SAUDE',
-                            'MTXCARD - CARTÃO BENEFÍCIO', 'NIO CARTÃO CREDITO', 'SICOOB', 'SINDAL',
-                            'SUDACRED - CARTÃO BENEFÍCIO', 'UNALE', 'UNIMED - CO PARTICIPACAO',
-                            'UNIMED - MENSALIDADE'
-                        ]
-                        
-                        # Classificar (ordem importa: facultativos primeiro, depois obrigatórios, por último proventos)
-                        eh_desconto_facultativo = any(palavra in descricao_upper for palavra in palavras_desconto_facultativo)
-                        eh_desconto_obrigatorio = any(palavra in descricao_upper for palavra in palavras_desconto_obrigatorio)
-                        eh_provento = any(palavra in descricao_upper for palavra in palavras_provento)
+                        # Buscar tipo do evento no mapeamento
+                        tipo_evento = MAPEAMENTO_EVENTOS.get((codigo, descricao_upper), None)
                         
                         evento_obj = {
                             'descricao': descricao,
@@ -188,20 +169,23 @@ def extrair_dados_ativos(linhas, caminho_pdf, numero_pagina=None):
                             'codigo': codigo
                         }
                         
-                        # Classificar na ordem correta: facultativos > obrigatórios > proventos
-                        if eh_desconto_facultativo:
-                            dados['descontos_extras'].append(evento_obj)
-                            dados['total_descontos_extras'] += valor_evento
-                            dados['total_descontos'] += valor_evento
-                        elif eh_desconto_obrigatorio:
+                        # Classificar baseado no tipo da planilha
+                        if tipo_evento == 'Provento':
+                            dados['proventos'].append(evento_obj)
+                            dados['total_proventos'] += valor_evento
+                        elif tipo_evento == 'Desconto Compulsório (obrigatório)':
                             dados['descontos_obrigatorios'].append(evento_obj)
                             dados['total_descontos_obrigatorios'] += valor_evento
                             dados['total_descontos'] += valor_evento
-                        elif eh_provento:
-                            dados['proventos'].append(evento_obj)
-                            dados['total_proventos'] += valor_evento
+                        elif tipo_evento == 'Desconto Facultativo (extra)':
+                            dados['descontos_extras'].append(evento_obj)
+                            dados['total_descontos_extras'] += valor_evento
+                            dados['total_descontos'] += valor_evento
+                        elif tipo_evento == 'Omitir do cálculo':
+                            # Armazenar como evento informativo (não entra no cálculo da margem)
+                            dados['eventos_informativos'].append(evento_obj)
                         else:
-                            # Se não identificou, assumir provento
+                            # Se não encontrou no mapeamento, assumir provento (fallback)
                             dados['proventos'].append(evento_obj)
                             dados['total_proventos'] += valor_evento
                     
@@ -407,7 +391,6 @@ def gerar_html_relatorio(dados_folhas):
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Análise da Margem Consignável - SGP/ALMT - {competencia_formatada}</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         * {{
             margin: 0;
@@ -718,17 +701,69 @@ def gerar_html_relatorio(dados_folhas):
                 padding: 12px 15px;
             }}
             
+            /* Tabelas no mobile: transformar em cards */
             table {{
-                font-size: 12px;
-                display: block;
-                overflow-x: auto;
-                white-space: nowrap;
-                -webkit-overflow-scrolling: touch;
+                font-size: 11px;
             }}
             
-            table th,
+            table thead {{
+                display: none;
+            }}
+            
+            table, table tbody, table tr, table td {{
+                display: block;
+                width: 100%;
+            }}
+            
+            table tr {{
+                background: white;
+                border: 2px solid #e0e0e0;
+                border-radius: 10px;
+                margin-bottom: 15px;
+                padding: 15px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            }}
+            
             table td {{
-                padding: 8px 6px;
+                text-align: left !important;
+                padding: 8px 0;
+                border: none;
+                position: relative;
+                padding-left: 50%;
+            }}
+            
+            table td:before {{
+                content: attr(data-label);
+                position: absolute;
+                left: 0;
+                width: 45%;
+                padding-right: 10px;
+                font-weight: bold;
+                color: #2c3e50;
+                text-align: left;
+            }}
+            
+            /* Links de beneficiários como botões */
+            table td a {{
+                display: inline-block;
+                background: #2c3e50;
+                color: white !important;
+                padding: 8px 15px;
+                border-radius: 8px;
+                text-decoration: none;
+                font-weight: 600;
+                margin-top: 5px;
+            }}
+            
+            table td a:hover {{
+                background: #34495e;
+            }}
+            
+            /* Ocultar colunas menos importantes no mobile */
+            table td:nth-child(2),  /* CPF */
+            table td:nth-child(3)   /* Data Nascimento */
+            {{
+                display: none;
             }}
             
             .alert {{
@@ -752,6 +787,11 @@ def gerar_html_relatorio(dados_folhas):
                 grid-template-columns: 1fr !important;
             }}
             
+            /* Cards de detalhes individuais */
+            .card-indice {{
+                padding: 25px;
+            }}
+            
             /* Ajuste de títulos menores */
             h2 {{
                 font-size: 1.3em;
@@ -768,6 +808,11 @@ def gerar_html_relatorio(dados_folhas):
             h5 {{
                 font-size: 0.95em;
             }}
+            
+            /* Melhorar legibilidade de valores */
+            .valor {{
+                word-break: break-word;
+            }}
         }}
         
         @media screen and (max-width: 480px) {{
@@ -780,7 +825,17 @@ def gerar_html_relatorio(dados_folhas):
             }}
             
             table {{
+                font-size: 10px;
+            }}
+            
+            table td {{
+                padding-left: 45%;
                 font-size: 11px;
+            }}
+            
+            table td:before {{
+                font-size: 10px;
+                width: 40%;
             }}
             
             nav button {{
@@ -804,6 +859,7 @@ def gerar_html_relatorio(dados_folhas):
         <nav id="navegacao" style="display: none;">
             <button onclick="mostrarSecao('indice')">🏠 Início</button>
             <button onclick="mostrarSecao('geral')">📈 Relatório Geral</button>
+            <button onclick="mostrarSecao('composicao')">📋 Composição</button>
             <button onclick="mostrarSecao('beneficiario')">👤 Por Beneficiário</button>
         </nav>
         
@@ -816,6 +872,11 @@ def gerar_html_relatorio(dados_folhas):
                         <i>📈</i>
                         <h2>Relatório Geral</h2>
                         <p>Visão consolidada de todas as folhas de pagamento</p>
+                    </div>
+                    <div class="card-indice" onclick="mostrarSecao('composicao')">
+                        <i>📋</i>
+                        <h2>Composição de Rendimentos</h2>
+                        <p>Lista completa de eventos classificados</p>
                     </div>
                     <div class="card-indice" onclick="mostrarSecao('beneficiario')">
                         <i>👤</i>
@@ -970,17 +1031,15 @@ def gerar_html_relatorio(dados_folhas):
     beneficiarios_criticos = []  # Lista para armazenar beneficiários em situação crítica (>35%)
     
     for dados in dados_folhas:
-        total_prov = dados.get('total_proventos', 0)
-        descontos_obrig = dados.get('total_descontos_obrigatorios', 0)
         descontos_extras = dados.get('total_descontos_extras', 0)
-        
-        # Base de cálculo: Remuneração Líquida (Proventos - Descontos Obrigatórios)
-        remuneracao_liquida = total_prov - descontos_obrig
+        liquido_final = dados.get('liquido', 0)
         
         if descontos_extras == 0:
             sem_descontos += 1
-        elif remuneracao_liquida > 0:
-            percentual = (descontos_extras / remuneracao_liquida) * 100
+        elif liquido_final > 0:
+            # Base de cálculo: Líquido Final (o que o servidor efetivamente recebe)
+            percentual = (descontos_extras / liquido_final) * 100
+            
             if percentual < 20:
                 saudavel += 1
             elif percentual < 30:
@@ -990,7 +1049,6 @@ def gerar_html_relatorio(dados_folhas):
             else:
                 critico += 1
                 # Adicionar à lista de beneficiários críticos (somente >35%)
-                valor_liquido_recebido = remuneracao_liquida - descontos_extras
                 
                 # Verificar se há evento de rescisão
                 tem_rescisao = any(
@@ -998,14 +1056,20 @@ def gerar_html_relatorio(dados_folhas):
                     for evento in dados.get('proventos', [])
                 )
                 
+                # Calcular margem consignável (base de cálculo para empréstimos)
+                margem_consignavel = dados.get('total_proventos', 0) - dados.get('total_descontos_obrigatorios', 0)
+                
                 beneficiarios_criticos.append({
                     'nome': dados.get('nome', 'N/A'),
                     'cpf': dados.get('cpf', 'N/A'),
                     'situacao': dados.get('situacao', 'N/A'),
-                    'remuneracao_liquida': remuneracao_liquida,
+                    'total_proventos': dados.get('total_proventos', 0),
+                    'total_descontos_obrigatorios': dados.get('total_descontos_obrigatorios', 0),
+                    'margem_consignavel': margem_consignavel,
+                    'liquido_final': liquido_final,
                     'descontos_extras': descontos_extras,
                     'percentual': percentual,
-                    'valor_liquido_recebido': valor_liquido_recebido,
+                    'percentual_sobre_margem': (descontos_extras / margem_consignavel * 100) if margem_consignavel > 0 else 0,
                     'rescisao': 'Sim' if tem_rescisao else 'Não'
                 })
     
@@ -1050,28 +1114,32 @@ def gerar_html_relatorio(dados_folhas):
                                 <tr>
                                     <th>Nome</th>
                                     <th>Situação</th>
-                                    <th>Margem Consignável</th>
-                                    <th>Margem Comprometida</th>
-                                    <th>% Comprometido</th>
-                                    <th>Valor Líquido Recebido</th>
-                                    <th>Rescisão de Contrato</th>
+                                    <th>Proventos Brutos</th>
+                                    <th>Descontos Obrigatórios</th>
+                                    <th>Margem Consignável<br><small>(Base de Cálculo)</small></th>
+                                    <th>Descontos Extras<br><small>(Comprometido)</small></th>
+                                    <th>% sobre Margem</th>
+                                    <th>Líquido Final</th>
+                                    <th>Rescisão</th>
                                 </tr>
                             </thead>
                             <tbody>
 """
         
-        for benef in sorted(beneficiarios_criticos, key=lambda x: x['percentual'], reverse=True):
+        for benef in sorted(beneficiarios_criticos, key=lambda x: x['percentual_sobre_margem'], reverse=True):
             # Criar ID único baseado no CPF para busca
             cpf_limpo = benef.get('cpf', '').replace('.', '').replace('-', '')
             rescisao_style = 'color: #a71d2a; font-weight: bold;' if benef.get('rescisao') == 'Sim' else 'color: #2c3e50;'
             html += f"""                                <tr>
-                                    <td><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('{benef.get('cpf', '')}')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de {benef['nome']}">{benef['nome']}</a></strong></td>
-                                    <td>{benef['situacao']}</td>
-                                    <td>R$ {formatar_moeda_br(benef['remuneracao_liquida'])}</td>
-                                    <td style="color: #a71d2a; font-weight: bold;">R$ {formatar_moeda_br(benef['descontos_extras'])}</td>
-                                    <td style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">{benef['percentual']:.1f}%</td>
-                                    <td style="color: #2c3e50; font-weight: bold;">R$ {formatar_moeda_br(benef['valor_liquido_recebido'])}</td>
-                                    <td style="{rescisao_style} text-align: center; font-weight: bold;">{benef.get('rescisao', 'Não')}</td>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('{benef.get('cpf', '')}')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de {benef['nome']}">{benef['nome']}</a></strong></td>
+                                    <td data-label="Situação">{benef['situacao']}</td>
+                                    <td data-label="Proventos Brutos" style="color: #27ae60; font-weight: bold;">R$ {formatar_moeda_br(benef['total_proventos'])}</td>
+                                    <td data-label="Descontos Obrigatórios" style="color: #ff9800;">R$ {formatar_moeda_br(benef['total_descontos_obrigatorios'])}</td>
+                                    <td data-label="Margem Consignável" style="color: #3498db; font-weight: bold;">R$ {formatar_moeda_br(benef['margem_consignavel'])}</td>
+                                    <td data-label="Descontos Extras" style="color: #e74c3c; font-weight: bold;">R$ {formatar_moeda_br(benef['descontos_extras'])}</td>
+                                    <td data-label="% sobre Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">{benef['percentual_sobre_margem']:.1f}%</td>
+                                    <td data-label="Líquido Final" style="color: #2c3e50; font-weight: bold;">R$ {formatar_moeda_br(benef['liquido_final'])}</td>
+                                    <td data-label="Rescisão" style="{rescisao_style} text-align: center; font-weight: bold;">{benef.get('rescisao', 'Não')}</td>
                                 </tr>
 """
         
@@ -1090,157 +1158,78 @@ def gerar_html_relatorio(dados_folhas):
 """
     
     html += """                </div>
-                
-                <!-- IMPACTO FINANCEIRO DETALHADO -->
-                <div class="estatistica">
-                    <h3>💰 IMPACTO FINANCEIRO POR PROVENTO</h3>
-                    <p style="color: #555; margin-bottom: 15px;">Distribuição dos proventos por tipo e seu impacto no orçamento total.</p>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Tipo de Provento</th>
-                                <th>Ocorrências Aposentados</th>
-                                <th>Ocorrências Pensionistas</th>
-                                <th>Total Ocorrências</th>
-                                <th>Valor Aposentados</th>
-                                <th>Valor Pensionistas</th>
-                                <th>Valor Total</th>
-                                <th>% do Orçamento</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-"""
-    
-    for tipo, dados in sorted(tipos_proventos.items(), key=lambda x: sum(x[1]['aposentados']) + sum(x[1]['pensionistas']) + sum(x[1]['outros']), reverse=True):
-        qtd_aposentados = len(dados['aposentados'])
-        qtd_pensionistas = len(dados['pensionistas'])
-        qtd_outros = len(dados['outros'])
-        qtd_total = qtd_aposentados + qtd_pensionistas + qtd_outros
-        
-        valor_aposentados = sum(dados['aposentados'])
-        valor_pensionistas = sum(dados['pensionistas'])
-        valor_outros = sum(dados['outros'])
-        total = valor_aposentados + valor_pensionistas + valor_outros
-        
-        percentual_orcamento = (total / total_geral_proventos) * 100
-        html += f"""                            <tr>
-                                <td><strong>{tipo}</strong></td>
-                                <td>{qtd_aposentados}</td>
-                                <td>{qtd_pensionistas}</td>
-                                <td>{qtd_total}</td>
-                                <td>R$ {formatar_moeda_br(valor_aposentados)}</td>
-                                <td>R$ {formatar_moeda_br(valor_pensionistas)}</td>
-                                <td>R$ {formatar_moeda_br(total)}</td>
-                                <td>{percentual_orcamento:.1f}%</td>
-                            </tr>
-"""
-    
-    html += """                        </tbody>
-                    </table>
-                </div>
-                
-                <div class="estatistica">
-                    <h3>⚖️ IMPACTO FINANCEIRO POR DESCONTO OBRIGATÓRIO</h3>
-                    <p style="color: #555; margin-bottom: 15px;">Descontos compulsórios previstos em lei (Previdência, Imposto de Renda, etc.).</p>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Tipo de Desconto</th>
-                                <th>Ocorrências Aposentados</th>
-                                <th>Ocorrências Pensionistas</th>
-                                <th>Total Ocorrências</th>
-                                <th>Valor Aposentados</th>
-                                <th>Valor Pensionistas</th>
-                                <th>Valor Total</th>
-                                <th>% dos Descontos Obrigatórios</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-"""
-    
-    for tipo, dados in sorted(tipos_descontos_obrigatorios.items(), key=lambda x: sum(x[1]['aposentados']) + sum(x[1]['pensionistas']) + sum(x[1]['outros']), reverse=True):
-        qtd_aposentados = len(dados['aposentados'])
-        qtd_pensionistas = len(dados['pensionistas'])
-        qtd_outros = len(dados['outros'])
-        qtd_total = qtd_aposentados + qtd_pensionistas + qtd_outros
-        
-        valor_aposentados = sum(dados['aposentados'])
-        valor_pensionistas = sum(dados['pensionistas'])
-        valor_outros = sum(dados['outros'])
-        total = valor_aposentados + valor_pensionistas + valor_outros
-        
-        percentual_descontos_tipo = (total / total_geral_descontos_obrigatorios * 100) if total_geral_descontos_obrigatorios > 0 else 0
-        html += f"""                            <tr>
-                                <td><strong>{tipo}</strong></td>
-                                <td>{qtd_aposentados}</td>
-                                <td>{qtd_pensionistas}</td>
-                                <td>{qtd_total}</td>
-                                <td>R$ {formatar_moeda_br(valor_aposentados)}</td>
-                                <td>R$ {formatar_moeda_br(valor_pensionistas)}</td>
-                                <td>R$ {formatar_moeda_br(total)}</td>
-                                <td>{percentual_descontos_tipo:.1f}%</td>
-                            </tr>
-"""
-    
-    html += """                        </tbody>
-                    </table>
-                </div>
-                
-                <div class="estatistica">
-                    <h3>📉 IMPACTO FINANCEIRO POR DESCONTO FACULTATIVO</h3>
-                    <p style="color: #555; margin-bottom: 15px;">Descontos opcionais (Empréstimos Consignados, Planos de Saúde, Associações, etc.).</p>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Tipo de Desconto</th>
-                                <th>Ocorrências Aposentados</th>
-                                <th>Ocorrências Pensionistas</th>
-                                <th>Total Ocorrências</th>
-                                <th>Valor Aposentados</th>
-                                <th>Valor Pensionistas</th>
-                                <th>Valor Total</th>
-                                <th>% dos Descontos Facultativos</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-"""
-    
-    for tipo, dados in sorted(tipos_descontos_facultativos.items(), key=lambda x: sum(x[1]['aposentados']) + sum(x[1]['pensionistas']) + sum(x[1]['outros']), reverse=True):
-        qtd_aposentados = len(dados['aposentados'])
-        qtd_pensionistas = len(dados['pensionistas'])
-        qtd_outros = len(dados['outros'])
-        qtd_total = qtd_aposentados + qtd_pensionistas + qtd_outros
-        
-        valor_aposentados = sum(dados['aposentados'])
-        valor_pensionistas = sum(dados['pensionistas'])
-        valor_outros = sum(dados['outros'])
-        total = valor_aposentados + valor_pensionistas + valor_outros
-        
-        percentual_descontos_tipo = (total / total_geral_descontos_extras * 100) if total_geral_descontos_extras > 0 else 0
-        html += f"""                            <tr>
-                                <td><strong>{tipo}</strong></td>
-                                <td>{qtd_aposentados}</td>
-                                <td>{qtd_pensionistas}</td>
-                                <td>{qtd_total}</td>
-                                <td>R$ {formatar_moeda_br(valor_aposentados)}</td>
-                                <td>R$ {formatar_moeda_br(valor_pensionistas)}</td>
-                                <td>R$ {formatar_moeda_br(total)}</td>
-                                <td>{percentual_descontos_tipo:.1f}%</td>
-                            </tr>
-"""
-    
-    html += f"""                        </tbody>
-                    </table>
-                    
-                    <!-- Gráfico de Pizza dos Descontos Facultativos -->
-                    <div style="background: white; padding: 30px; border-radius: 10px; margin-top: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
-                        <h4 style="color: #2c3e50; margin-bottom: 20px; text-align: center;">📊 Distribuição Visual dos Descontos Facultativos</h4>
-                        <div style="max-width: 500px; margin: 0 auto;">
-                            <canvas id="graficoDescontosFacultativos"></canvas>
-                        </div>
-                    </div>
-                </div>
             </div>
+            
+            <!-- COMPOSIÇÃO DE RENDIMENTOS -->
+            <div id="composicao" class="secao">
+                <h2 style="color: #2c3e50; margin-bottom: 30px;">📋 Composição de Rendimentos - Eventos Classificados</h2>
+                
+                <div style="background: #e3f2fd; padding: 20px; border-radius: 10px; margin-bottom: 30px; border-left: 5px solid #2196f3;">
+                    <p style="color: #1565c0; margin: 0; line-height: 1.6;">
+                        <strong>📌 Sobre esta lista:</strong> Estes são todos os eventos (proventos e descontos) cadastrados no sistema, 
+                        classificados conforme a planilha <code>Descricao_Comp_Rend.xlsx</code>. 
+                        A classificação determina como cada evento é contabilizado no cálculo da margem consignável.
+                    </p>
+                </div>
+"""
+    
+    # Organizar eventos por tipo
+    eventos_por_tipo = {
+        'Provento': [],
+        'Desconto Compulsório (obrigatório)': [],
+        'Desconto Facultativo (extra)': [],
+        'Omitir do cálculo': []
+    }
+    
+    for (codigo, descricao), tipo in sorted(MAPEAMENTO_EVENTOS.items()):
+        eventos_por_tipo[tipo].append((codigo, descricao))
+    
+    # Gerar HTML para cada tipo
+    cores_tipo = {
+        'Provento': {'bg': '#d4edda', 'border': '#28a745', 'icon': '💰'},
+        'Desconto Compulsório (obrigatório)': {'bg': '#fff3cd', 'border': '#ffc107', 'icon': '⚖️'},
+        'Desconto Facultativo (extra)': {'bg': '#f8d7da', 'border': '#dc3545', 'icon': '💳'},
+        'Omitir do cálculo': {'bg': '#e2e3e5', 'border': '#6c757d', 'icon': '⊘'}
+    }
+    
+    for tipo, eventos in eventos_por_tipo.items():
+        if not eventos:
+            continue
+            
+        cor = cores_tipo.get(tipo, {'bg': '#f8f9fa', 'border': '#6c757d', 'icon': '📄'})
+        
+        html += f"""
+                <div class="estatistica">
+                    <div style="background: {cor['bg']}; padding: 15px; border-radius: 8px; border-left: 5px solid {cor['border']}; margin-bottom: 15px;">
+                        <h3 style="margin: 0; color: #2c3e50;">
+                            <span style="font-size: 1.3em; margin-right: 10px;">{cor['icon']}</span>
+                            {tipo}
+                            <span style="font-size: 0.8em; color: #666; font-weight: normal;">({len(eventos)} evento{'s' if len(eventos) != 1 else ''})</span>
+                        </h3>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 100px;">Código</th>
+                                <th>Descrição do Evento</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+"""
+        
+        for codigo, descricao in sorted(eventos, key=lambda x: int(x[0]) if x[0].isdigit() else 9999):
+            html += f"""                            <tr>
+                                <td style="text-align: center; font-weight: bold; color: #2c3e50;">{codigo}</td>
+                                <td>{descricao}</td>
+                            </tr>
+"""
+        
+        html += """                        </tbody>
+                    </table>
+                </div>
+"""
+    
+    html += """            </div>
             
             <!-- RELATÓRIO POR BENEFICIÁRIO -->
             <div id="beneficiario" class="secao">
@@ -1262,66 +1251,6 @@ def gerar_html_relatorio(dados_folhas):
     <script>
         // Dados dos beneficiários
         const dadosBeneficiarios = """ + json.dumps(dados_folhas, ensure_ascii=False) + """;
-        
-        // Criar gráfico de pizza quando a página carregar
-        window.addEventListener('DOMContentLoaded', function() {
-            const ctx = document.getElementById('graficoDescontosFacultativos');
-            if (ctx) {
-                const descontosFacultativos = """ + json.dumps([
-                    {'tipo': tipo, 'valor': sum(dados['aposentados']) + sum(dados['pensionistas']) + sum(dados['outros'])} 
-                    for tipo, dados in sorted(tipos_descontos_facultativos.items(), 
-                                             key=lambda x: sum(x[1]['aposentados']) + sum(x[1]['pensionistas']) + sum(x[1]['outros']), 
-                                             reverse=True)
-                ], ensure_ascii=False) + """;
-                
-                const labels = descontosFacultativos.map(d => d.tipo);
-                const valores = descontosFacultativos.map(d => d.valor);
-                const cores = [
-                    '#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6',
-                    '#1abc9c', '#e67e22', '#34495e', '#16a085', '#c0392b'
-                ];
-                
-                new Chart(ctx, {
-                    type: 'pie',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            data: valores,
-                            backgroundColor: cores.slice(0, labels.length),
-                            borderColor: '#fff',
-                            borderWidth: 2
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: true,
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: {
-                                    padding: 15,
-                                    font: {
-                                        size: 12,
-                                        family: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
-                                    }
-                                }
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        const label = context.label || '';
-                                        const value = context.parsed || 0;
-                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                        const percentage = ((value / total) * 100).toFixed(1);
-                                        return label + ': R$ ' + value.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' (' + percentage + '%)';
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-        });
         
         function mostrarSecao(secaoId) {
             // Esconder todas as seções
@@ -1660,6 +1589,50 @@ def gerar_html_relatorio(dados_folhas):
                         </table>
                         </div>
                         
+                        ${beneficiario.eventos_informativos && beneficiario.eventos_informativos.length > 0 ? `
+                        <div style="background: linear-gradient(135deg, #e3f2fd 0%, #f1f8fc 100%); padding: 25px; border-radius: 12px; margin: 25px 0; border-left: 5px solid #2196f3;">
+                            <h4 style="color: #1976d2; margin: 0 0 10px 0; display: flex; align-items: center; gap: 10px;">
+                                <span style="font-size: 1.5em;">ℹ️</span>
+                                <span>OUTROS EVENTOS INFORMATIVOS</span>
+                            </h4>
+                            <p style="color: #0d47a1; margin-bottom: 20px; font-size: 0.95em; line-height: 1.6;">
+                                <strong>⚠️ Atenção:</strong> Os eventos abaixo <strong>não entram no cálculo da margem consignável</strong>. 
+                                São valores informativos, adiantamentos já incluídos, ou eventos que não afetam a base de cálculo conforme 
+                                as regras da instituição.
+                            </p>
+                            <table style="background: white;">
+                                <thead>
+                                    <tr>
+                                        <th style="text-align: left;">Descrição</th>
+                                        <th style="text-align: right; width: 120px;">Valor</th>
+                                        <th style="text-align: center; width: 80px;">Código</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                        ` : ''}
+                        ${beneficiario.eventos_informativos && beneficiario.eventos_informativos.length > 0 ? 
+                            beneficiario.eventos_informativos.map(e => `
+                                    <tr>
+                                        <td style="font-weight: 500; color: #555;">${e.descricao}</td>
+                                        <td style="text-align: right; color: #2196f3; font-weight: 600;">R$ ${e.valor.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                        <td style="text-align: center; color: #999; font-family: monospace;">${e.codigo}</td>
+                                    </tr>
+                            `).join('') : ''
+                        }
+                        ${beneficiario.eventos_informativos && beneficiario.eventos_informativos.length > 0 ? `
+                                </tbody>
+                            </table>
+                            <div style="background: rgba(33, 150, 243, 0.1); padding: 15px; border-radius: 8px; margin-top: 15px;">
+                                <p style="margin: 0; color: #0d47a1; font-size: 0.9em; line-height: 1.6;">
+                                    <strong>📌 Por que esses eventos não entram no cálculo?</strong><br>
+                                    Podem incluir: adiantamentos de 13º salário, férias já computadas, 
+                                    rescisões (que têm tratamento específico), eventos já incluídos em outros lançamentos, 
+                                    ou valores puramente informativos que não afetam a margem disponível para consignações.
+                                </p>
+                            </div>
+                        </div>
+                        ` : ''}
+                        
                         <div style="background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); color: white; padding: 30px; border-radius: 15px; margin: 25px 0; box-shadow: 0 8px 20px rgba(0,0,0,0.2);">
                             <h4 style="margin: 0 0 25px 0; font-size: 1.3em; display: flex; align-items: center; gap: 10px;">
                                 <span style="font-size: 1.3em;">🧮</span>
@@ -1703,6 +1676,17 @@ def gerar_html_relatorio(dados_folhas):
                                         <div style="font-size: 0.75em; opacity: 0.9; color: #f1c40f; margin-top: 5px;">(${beneficiario.total_proventos > 0 ? (beneficiario.liquido / beneficiario.total_proventos * 100).toFixed(1) : 0}% dos proventos)</div>
                                     </div>
                                 </div>
+                                
+                                ${beneficiario.eventos_informativos && beneficiario.eventos_informativos.length > 0 ? `
+                                <div style="background: rgba(33, 150, 243, 0.1); padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 3px solid #2196f3;">
+                                    <p style="margin: 0; color: rgba(255,255,255,0.95); font-size: 0.9em; line-height: 1.6;">
+                                        ℹ️ <strong>Nota:</strong> O valor líquido acima é extraído diretamente do holerite e 
+                                        já considera todos os eventos, incluindo os informativos listados anteriormente. 
+                                        Para o cálculo da <strong>margem consignável</strong>, utilizamos apenas os valores 
+                                        classificados como proventos e descontos regulares.
+                                    </p>
+                                </div>
+                                ` : ''}
                                 
                                 ${(() => {
                                     const proventos = beneficiario.total_proventos;
@@ -2129,6 +2113,12 @@ def salvar_log_erros(dados_todas_folhas, caminho_pasta):
 
 # ========== PROCESSAMENTO PRINCIPAL ==========
 
+# Configurar encoding para UTF-8 no Windows
+import sys
+if sys.platform == 'win32':
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+
 print("="*80)
 print("🚀 SISTEMA DE ANÁLISE DE FOLHAS DE PAGAMENTO")
 print("="*80)
@@ -2139,7 +2129,7 @@ caminho_pasta = r"c:\Users\41870\Desktop\VSCODE\Folha_SGP\Download_Folha"
 # Buscar todos os PDFs
 arquivos_pdf = [f for f in os.listdir(caminho_pasta) if f.endswith('.pdf') and 'Logo' not in f]
 
-print(f"\n� Pasta: {caminho_pasta}")
+print(f"\n📂 Pasta: {caminho_pasta}")
 print(f"📄 Arquivos PDF encontrados: {len(arquivos_pdf)}")
 
 if len(arquivos_pdf) == 0:
@@ -2264,13 +2254,13 @@ html_final = gerar_html_relatorio(dados_todas_folhas)
 # Salvar arquivos na pasta Folha (pasta raiz)
 pasta_raiz = os.path.dirname(caminho_pasta)
 
-# Salvar arquivo HTML
-caminho_saida = os.path.join(pasta_raiz, "Relatorio_Folha_Pagamento.html")
-with open(caminho_saida, 'w', encoding='utf-8') as f:
+# Salvar arquivo HTML diretamente como index.html
+caminho_index = os.path.join(pasta_raiz, "index.html")
+with open(caminho_index, 'w', encoding='utf-8') as f:
     f.write(html_final)
 
 print(f"✅ Relatório HTML gerado com sucesso!")
-print(f"📁 Arquivo salvo em: {caminho_saida}")
+print(f"📁 Arquivo salvo em: {caminho_index}")
 
 # Salvar dados em JSON para backup/análise futura
 caminho_json = os.path.join(pasta_raiz, "dados_folhas_backup.json")
@@ -2282,7 +2272,7 @@ print("\n" + "="*80)
 print("🎉 PROCESSAMENTO CONCLUÍDO COM SUCESSO!")
 print("="*80)
 print("\n🌐 Abra o arquivo HTML no navegador para visualizar o relatório!")
-print(f"   → {caminho_saida}\n")
+print(f"   → {caminho_index}\n")
 
 # ============================================
 # SINCRONIZAÇÃO AUTOMÁTICA COM GITHUB
@@ -2292,13 +2282,9 @@ print("🔄 SINCRONIZAÇÃO COM GITHUB")
 print("="*80)
 
 try:
-    import shutil
     import subprocess
     
-    # Copiar para index.html
-    caminho_index = os.path.join(pasta_raiz, "index.html")
-    shutil.copy2(caminho_saida, caminho_index)
-    print(f"✅ Arquivo copiado para: index.html")
+    print(f"✅ Arquivo index.html pronto para sincronização!")
     
     # Verificar se Git está disponível
     try:
