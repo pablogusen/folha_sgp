@@ -3453,6 +3453,10 @@
                             <div class="label">Situação</div>
                             <div class="valor" style="font-size: 1em;">${beneficiario.situacao}</div>
                         </div>
+                        <div class="stat-box">
+                            <div class="label">Cargo</div>
+                            <div class="valor" style="font-size: 1em;">${beneficiario.cargo || 'Não informado'}</div>
+                        </div>
             `;
             
             // Verificar se há evento de rescisão
@@ -3937,7 +3941,7 @@
                                 <h5 style="color: #e67e22; margin: 0 0 15px 0;">📊 Situação Atual:</h5>
                                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; color: #856404;">
                                     <div>
-                                        <strong>Margem Consignável:</strong> R$ ${baseCalculo.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                                        <strong>RLM (Base Margem):</strong> R$ ${baseCalculo.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                                     </div>
                                     <div>
                                         <strong>Percentual Comprometido:</strong> <span style="color: #e74c3c; font-weight: bold;">${percentualAtual.toFixed(2)}%</span>
