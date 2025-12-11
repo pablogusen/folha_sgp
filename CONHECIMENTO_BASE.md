@@ -347,6 +347,180 @@ from datetime import datetime
 
 ## 📅 ATUALIZAÇÕES - DEZEMBRO 2025
 
+### 11/12/2025 - Sistema de Detecção de Eventos Não Classificados
+
+#### 🔍 Nova Funcionalidade: Notificação Automática
+
+O sistema agora detecta **automaticamente** eventos novos que aparecem nos holerites mas não estão classificados na planilha Excel.
+
+**Problema Resolvido:**
+- Holerites de competências futuras (ex: Dezembro/2025) podem trazer novos eventos
+- Sem detecção, esses eventos seriam classificados incorretamente como "Provento" (fallback)
+- Usuário não seria notificado sobre a necessidade de classificação
+
+**Solução Implementada:**
+
+**1. Detecção Durante Processamento**
+```python
+# Global set para rastrear eventos não mapeados
+EVENTOS_NAO_MAPEADOS = set()
+
+# Durante extração de cada evento:
+tipo_evento = MAPEAMENTO_EVENTOS.get((codigo, descricao_upper), None)
+
+if tipo_evento is None:
+    EVENTOS_NAO_MAPEADOS.add((codigo, descricao_upper, descricao_original))
+    # Fallback: classificar como Provento temporariamente
+```
+
+**2. Arquivo de Notificação** (`EVENTOS_NAO_CLASSIFICADOS.txt`)
+
+Gerado automaticamente quando eventos não mapeados são detectados:
+```
+================================================================================
+⚠️  EVENTOS NÃO CLASSIFICADOS - AÇÃO NECESSÁRIA
+================================================================================
+Data/Hora: 11/12/2025 14:30:15
+Total de eventos não classificados: 3
+
+📋 INSTRUÇÕES:
+1. Abra a planilha: Descricao_Comp_Rend.xlsx
+2. Acesse a sheet: 'Composição de Rendimentos'
+3. Adicione cada evento com sua classificação
+4. Se for 'Desconto Facultativo', adicione na 'Ordem de Eliminação' (1-4)
+5. Salve e execute o script novamente
+
+📊 EVENTOS NÃO CLASSIFICADOS:
+
+Código: 999
+Descrição: BONIFICAÇÃO ESPECIAL NATAL
+Descrição Normalizada: BONIFICAÇÃO ESPECIAL NATAL
+--------------------------------------------------------------------------------
+```
+
+**3. Notificação no Console**
+
+```
+================================================================================
+⚠️  ATENÇÃO: EVENTOS NÃO CLASSIFICADOS DETECTADOS!
+================================================================================
+
+🔍 Foram encontrados 3 eventos novos que não estão na planilha Excel.
+📋 Esses eventos foram classificados como 'Provento' por padrão (fallback).
+📝 Você precisa classificá-los manualmente na planilha!
+
+📄 Lista completa salva em: EVENTOS_NAO_CLASSIFICADOS.txt
+
+================================================================================
+🚨 EVENTOS NÃO CLASSIFICADOS:
+================================================================================
+
+1. Código 999 - BONIFICAÇÃO ESPECIAL NATAL
+2. Código 1000 - AUXÍLIO TRANSPORTE ESPECIAL
+3. Código 1001 - GRATIFICAÇÃO FINAL DE ANO
+
+================================================================================
+⚠️  AÇÃO NECESSÁRIA:
+================================================================================
+1. Abra: Descricao_Comp_Rend.xlsx
+2. Classifique cada evento acima
+3. Se for 'Desconto Facultativo', defina a ordem de eliminação (1-4)
+4. Salve e execute o script novamente
+```
+
+**4. Alerta Visual no HTML**
+
+Quando há eventos não classificados, um banner de alerta é exibido no topo do relatório HTML:
+
+```html
+⚠️ EVENTOS NÃO CLASSIFICADOS DETECTADOS
+
+🔍 Foram encontrados 3 eventos novos que não estão na planilha Excel!
+
+Esses eventos foram classificados como "Provento" por padrão (fallback), 
+mas isso pode estar incorreto. Verifique o arquivo EVENTOS_NAO_CLASSIFICADOS.txt
+
+Exemplos:
+• Código 999: BONIFICAÇÃO ESPECIAL NATAL
+• Código 1000: AUXÍLIO TRANSPORTE ESPECIAL
+• Código 1001: GRATIFICAÇÃO FINAL DE ANO
+
+📋 AÇÃO NECESSÁRIA:
+1. Abra: Descricao_Comp_Rend.xlsx
+2. Classifique os eventos na sheet "Composição de Rendimentos"
+3. Se for "Desconto Facultativo", defina ordem (1-4) na sheet "Ordem de Eliminação"
+4. Salve e execute o script novamente
+```
+
+**Fluxo de Trabalho:**
+
+```
+1. Novo PDF de Dezembro/2025 é processado
+   ↓
+2. Sistema detecta evento não mapeado: "BONIFICAÇÃO ESPECIAL NATAL"
+   ↓
+3. Evento é adicionado a EVENTOS_NAO_MAPEADOS (set global)
+   ↓
+4. Temporariamente classificado como "Provento" (fallback)
+   ↓
+5. Ao final do processamento:
+   - Gera arquivo EVENTOS_NAO_CLASSIFICADOS.txt
+   - Exibe alerta no console (com lista)
+   - Adiciona banner no HTML
+   ↓
+6. Usuário abre Descricao_Comp_Rend.xlsx
+   ↓
+7. Adiciona linha com:
+   - CÓDIGO: 999
+   - DESCRIÇÃO EVENTOS: BONIFICAÇÃO ESPECIAL NATAL
+   - TIPO: Provento (ou outro)
+   ↓
+8. Se for "Desconto Facultativo", adiciona também em "Ordem de Eliminação":
+   - Prioridade 1, 2, 3 ou 4
+   ↓
+9. Salva planilha e executa script novamente
+   ↓
+10. Sistema agora classifica corretamente ✅
+```
+
+**Vantagens:**
+
+1. ✅ **Detecção Proativa** - Não passa despercebido
+2. ✅ **Arquivo Detalhado** - Lista completa para referência
+3. ✅ **Alerta Visual** - Impossível ignorar (console + HTML)
+4. ✅ **Instruções Claras** - Passo a passo do que fazer
+5. ✅ **Fallback Seguro** - Classificação temporária evita crash
+6. ✅ **Sem Duplicatas** - Usa `set()` para eventos únicos
+
+**Código Implementado:**
+
+```python
+# gerar_relatorio.py - Linha 81
+EVENTOS_NAO_MAPEADOS = set()  # Global tracking
+
+# Durante extração (linha 204-206)
+if tipo_evento is None:
+    EVENTOS_NAO_MAPEADOS.add((codigo, descricao_upper, descricao))
+
+# Após processamento (linhas 2267-2334)
+if EVENTOS_NAO_MAPEADOS:
+    # Gerar arquivo TXT
+    # Exibir no console
+    # Adicionar alerta no HTML
+```
+
+**Exemplo Real:**
+
+Se dezembro/2025 trouxer "13º COMPLEMENTAR" (código 4999):
+- ✅ Detectado automaticamente
+- ✅ Arquivo criado com instruções
+- ✅ Console alerta o usuário
+- ✅ Banner laranja no HTML
+- ✅ Usuário adiciona na planilha
+- ✅ Próxima execução: classificado corretamente
+
+---
+
 ### 11/12/2025 - Ordem de Eliminação Parametrizada
 
 #### 🎯 Nova Funcionalidade: Ordem de Eliminação via Excel

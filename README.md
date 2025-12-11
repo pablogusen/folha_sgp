@@ -110,6 +110,18 @@ Acesse: https://pablogusen.github.io/folha_sgp/
 
 ### ✅ Recentemente Implementado
 
+**11/12/2025 - Sistema de Detecção Automática**
+1. **Notificação de Eventos Não Classificados**
+   - Detecta automaticamente eventos novos nos holerites
+   - Gera arquivo `EVENTOS_NAO_CLASSIFICADOS.txt` com lista
+   - Alerta no console e banner visual no HTML
+   - Instruções claras para classificação
+
+2. **Proteção contra Erros de Classificação**
+   - Fallback temporário: eventos não mapeados → "Provento"
+   - Evita crashes no sistema
+   - Garante que relatório seja gerado mesmo com eventos novos
+
 **11/12/2025 - Ordem de Eliminação Parametrizada**
 1. **Nova Planilha Excel**: "Ordem de Eliminação"
    - 80 eventos com prioridades 1-4
