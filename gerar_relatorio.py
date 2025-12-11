@@ -70,6 +70,9 @@ def carregar_ordem_eliminacao():
 MAPEAMENTO_EVENTOS = carregar_mapeamento_eventos()
 ORDEM_ELIMINACAO = carregar_ordem_eliminacao()
 
+# Lista global para rastrear eventos não mapeados
+EVENTOS_NAO_MAPEADOS = set()  # Usar set para evitar duplicatas
+
 def formatar_moeda_br(valor):
     """Formata valor monetário no padrão brasileiro: 1.450,15"""
     return f"{valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
@@ -199,6 +202,10 @@ def extrair_dados_ativos(linhas, caminho_pdf, numero_pagina=None):
                         # Buscar tipo do evento no mapeamento
                         tipo_evento = MAPEAMENTO_EVENTOS.get((codigo, descricao_upper), None)
                         
+                        # Se não encontrou, registrar como não mapeado
+                        if tipo_evento is None:
+                            EVENTOS_NAO_MAPEADOS.add((codigo, descricao_upper, descricao))
+                        
                         evento_obj = {
                             'descricao': descricao,
                             'valor': valor_evento,
@@ -224,6 +231,7 @@ def extrair_dados_ativos(linhas, caminho_pdf, numero_pagina=None):
                             dados['eventos_informativos'].append(evento_obj)
                         else:
                             # Se não encontrou no mapeamento, assumir provento (fallback)
+                            # NOTA: Este evento será listado no relatório de não mapeados
                             dados['proventos'].append(evento_obj)
                             dados['total_proventos'] += valor_evento
                     
@@ -893,6 +901,8 @@ def gerar_html_relatorio(dados_folhas):
             <h1>Análise da Margem Consignável - SGP/ALMT</h1>
             <p>Competência: {competencia_formatada}</p>
         </header>
+        
+        {'<div style="background: linear-gradient(135deg, #fff3cd 0%, #ffe5b4 100%); border: 3px solid #ff9800; border-radius: 12px; padding: 25px; margin: 20px 0; box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);"><h3 style="color: #e65100; margin: 0 0 15px 0; display: flex; align-items: center; gap: 10px;"><span style="font-size: 1.8em;">⚠️</span><span>EVENTOS NÃO CLASSIFICADOS DETECTADOS</span></h3><div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 15px;"><p style="color: #e65100; font-weight: 600; font-size: 1.1em; margin: 0 0 15px 0;">🔍 Foram encontrados <strong>' + str(len(EVENTOS_NAO_MAPEADOS)) + ' eventos novos</strong> que não estão na planilha Excel!</p><p style="color: #666; margin: 0 0 10px 0; line-height: 1.6;">Esses eventos foram classificados como <strong>"Provento"</strong> por padrão (fallback), mas isso pode estar incorreto. Verifique o arquivo <code>EVENTOS_NAO_CLASSIFICADOS.txt</code> para detalhes.</p><p style="color: #666; margin: 0; line-height: 1.6;"><strong>Exemplos:</strong></p><ul style="color: #666; margin: 10px 0 0 20px; line-height: 1.8;">' + ''.join([f'<li><strong>Código {cod}:</strong> {desc[:50]}{"..." if len(desc) > 50 else ""}</li>' for cod, _, desc in sorted(list(EVENTOS_NAO_MAPEADOS), key=lambda x: int(x[0]) if x[0].isdigit() else x[0])[:5]]) + '</ul></div><div style="background: rgba(230, 81, 0, 0.1); padding: 15px; border-radius: 8px; border-left: 4px solid #e65100;"><strong style="color: #e65100;">📋 AÇÃO NECESSÁRIA:</strong><ol style="color: #666; margin: 10px 0 0 20px; line-height: 1.8;"><li>Abra: <code>Descricao_Comp_Rend.xlsx</code></li><li>Classifique os eventos na sheet <strong>"Composição de Rendimentos"</strong></li><li>Se for "Desconto Facultativo", defina ordem (1-4) na sheet <strong>"Ordem de Eliminação"</strong></li><li>Salve e execute o script novamente</li></ol></div></div>' if EVENTOS_NAO_MAPEADOS else ''}
         
         <nav id="navegacao" style="display: none;">
             <button onclick="mostrarSecao('indice')">🏠 Início</button>
@@ -2257,6 +2267,75 @@ if len(dados_todas_folhas) > 0:
 
 # Salvar log de erros se houver
 salvar_log_erros(dados_todas_folhas, caminho_pasta)
+
+# Gerar relatório de eventos não mapeados
+if EVENTOS_NAO_MAPEADOS:
+    print("\n" + "="*80)
+    print("⚠️  ATENÇÃO: EVENTOS NÃO CLASSIFICADOS DETECTADOS!")
+    print("="*80)
+    print(f"\n🔍 Foram encontrados {len(EVENTOS_NAO_MAPEADOS)} eventos novos que não estão na planilha Excel.")
+    print("📋 Esses eventos foram classificados como 'Provento' por padrão (fallback).")
+    print("📝 Você precisa classificá-los manualmente na planilha 'Descricao_Comp_Rend.xlsx'!\n")
+    
+    # Gerar arquivo de eventos não mapeados
+    pasta_raiz = os.path.dirname(caminho_pasta)
+    caminho_nao_mapeados = os.path.join(pasta_raiz, "EVENTOS_NAO_CLASSIFICADOS.txt")
+    
+    with open(caminho_nao_mapeados, 'w', encoding='utf-8') as f:
+        f.write("="*80 + "\n")
+        f.write("⚠️  EVENTOS NÃO CLASSIFICADOS - AÇÃO NECESSÁRIA\n")
+        f.write("="*80 + "\n")
+        f.write(f"Data/Hora: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}\n")
+        f.write(f"Total de eventos não classificados: {len(EVENTOS_NAO_MAPEADOS)}\n")
+        f.write("="*80 + "\n\n")
+        
+        f.write("📋 INSTRUÇÕES:\n")
+        f.write("-" * 80 + "\n")
+        f.write("1. Abra a planilha: Descricao_Comp_Rend.xlsx\n")
+        f.write("2. Acesse a sheet: 'Composição de Rendimentos'\n")
+        f.write("3. Adicione cada evento abaixo com sua classificação:\n")
+        f.write("   - Provento\n")
+        f.write("   - Desconto Compulsório (obrigatório)\n")
+        f.write("   - Desconto Facultativo (extra)\n")
+        f.write("   - Omitir do cálculo\n")
+        f.write("4. Se for 'Desconto Facultativo', adicione também na sheet 'Ordem de Eliminação'\n")
+        f.write("   com a prioridade correta (1, 2, 3 ou 4)\n")
+        f.write("5. Salve a planilha e execute o script novamente\n")
+        f.write("="*80 + "\n\n")
+        
+        f.write("📊 EVENTOS NÃO CLASSIFICADOS:\n")
+        f.write("="*80 + "\n\n")
+        
+        # Ordenar por código
+        eventos_ordenados = sorted(EVENTOS_NAO_MAPEADOS, key=lambda x: int(x[0]) if x[0].isdigit() else x[0])
+        
+        for codigo, descricao_upper, descricao_original in eventos_ordenados:
+            f.write(f"Código: {codigo}\n")
+            f.write(f"Descrição: {descricao_original}\n")
+            f.write(f"Descrição Normalizada: {descricao_upper}\n")
+            f.write("-" * 80 + "\n\n")
+        
+        f.write("="*80 + "\n")
+        f.write("💡 DICA: Copie as informações acima e cole na planilha Excel\n")
+        f.write("="*80 + "\n")
+    
+    print(f"📄 Lista completa salva em: {caminho_nao_mapeados}")
+    print("\n" + "="*80)
+    print("🚨 EVENTOS NÃO CLASSIFICADOS:")
+    print("="*80 + "\n")
+    
+    eventos_ordenados = sorted(EVENTOS_NAO_MAPEADOS, key=lambda x: int(x[0]) if x[0].isdigit() else x[0])
+    for i, (codigo, descricao_upper, descricao_original) in enumerate(eventos_ordenados, 1):
+        print(f"{i}. Código {codigo} - {descricao_original}")
+    
+    print("\n" + "="*80)
+    print("⚠️  AÇÃO NECESSÁRIA:")
+    print("="*80)
+    print("1. Abra: Descricao_Comp_Rend.xlsx")
+    print("2. Classifique cada evento acima")
+    print("3. Se for 'Desconto Facultativo', defina a ordem de eliminação (1-4)")
+    print("4. Salve e execute o script novamente")
+    print("="*80 + "\n")
 
 # Gerar HTML
 print("\n" + "="*80)
