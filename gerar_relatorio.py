@@ -29,8 +29,46 @@ def carregar_mapeamento_eventos():
         print("   O sistema usará a classificação padrão.")
         return {}
 
-# Carregar mapeamento global
+def carregar_ordem_eliminacao():
+    """
+    Carrega a ordem de eliminação da planilha Descricao_Comp_Rend.xlsx
+    Retorna dicionário: {descricao_normalizada: ordem_numero}
+    """
+    try:
+        caminho_planilha = Path(__file__).parent / 'Descricao_Comp_Rend.xlsx'
+        df_ordem = pd.read_excel(caminho_planilha, sheet_name='Ordem de Eliminação')
+        
+        # Criar dicionário de prioridades
+        prioridades = {}
+        for _, row in df_ordem.iterrows():
+            descricao = str(row['DESCRIÇÃO EVENTOS']).strip().upper()
+            ordem_texto = str(row['ORDEM']).strip()
+            
+            # Extrair número da ordem (1, 2, 3 ou 4)
+            if '1 -' in ordem_texto:
+                ordem_num = 1
+            elif '2 -' in ordem_texto:
+                ordem_num = 2
+            elif '3 -' in ordem_texto:
+                ordem_num = 3
+            elif '4 -' in ordem_texto:
+                ordem_num = 4
+            else:
+                ordem_num = 5  # Fallback para desconhecidos
+            
+            prioridades[descricao] = {
+                'ordem': ordem_num,
+                'nome_ordem': ordem_texto
+            }
+        
+        return prioridades
+    except Exception as e:
+        print(f"⚠️  Aviso: Não foi possível carregar ordem de eliminação: {e}")
+        return {}
+
+# Carregar mapeamentos globais
 MAPEAMENTO_EVENTOS = carregar_mapeamento_eventos()
+ORDEM_ELIMINACAO = carregar_ordem_eliminacao()
 
 def formatar_moeda_br(valor):
     """Formata valor monetário no padrão brasileiro: 1.450,15"""
@@ -1252,6 +1290,9 @@ def gerar_html_relatorio(dados_folhas):
         // Dados dos beneficiários
         const dadosBeneficiarios = """ + json.dumps(dados_folhas, ensure_ascii=False) + """;
         
+        // Ordem de eliminação da planilha Excel
+        const ordemEliminacao = """ + json.dumps(ORDEM_ELIMINACAO, ensure_ascii=False) + """;
+        
         function mostrarSecao(secaoId) {
             // Esconder todas as seções
             document.querySelectorAll('.secao').forEach(s => s.classList.remove('ativa'));
@@ -1758,72 +1799,71 @@ def gerar_html_relatorio(dados_folhas):
                     const limiteIdeal = baseCalculo * 0.35;
                     const valorAReduzir = descontosExtras - limiteIdeal;
                     
-                    // Prioridades de exclusão
-                    const prioridade1 = [
-                        'BIG CARD - CARTÃO BENEFÍCIO', 'BMG CARTÃO CREDITO',
-                        'EAGLE - CARTÃO BENEFÍCIO', 'EAGLE - CARTÃO CREDITO',
-                        'MTXCARD - CARTÃO BENEFÍCIO', 'NIO CARTÃO CREDITO',
-                        'SUDACRED - CARTÃO BENEFÍCIO'
-                    ];
-                    
-                    const prioridade2 = [
-                        'CONSIGNAÇÃO B.BRASIL', 'CONSIGNAÇÃO BANCOOB', 'CONSIGNAÇÃO BRADESCO',
-                        'CONSIGNACAO CEF', 'CONSIGNAÇÃO DAYCOVAL', 'CONSIGNAÇÃO EAGLE',
-                        'CONSIGNAÇÃO EAGLE - RESCISÃO', 'CONSIGNAÇÃO SICOOB - RESCISÃO',
-                        'CONSIGNAÇÃO SICOOB SERVIDOR', 'CONSIGNAÇÃO SICREDI',
-                        'CONSIGNAÇÃO SUDACRED', 'CONSIGNAÇÃO SUDACRED - RESCISÃO',
-                        'CONTA CAPITAL - CREDLEGIS', 'SICOOB'
-                    ];
-                    
-                    const prioridade3 = ['APRALE', 'ASLEM', 'SINDAL', 'UNALE'];
-                    
-                    const prioridade4 = [
-                        'GEAP SAÚDE - COOPARTICIPAÇÃO', 'GEAP SAÚDE - MENSALIDADE',
-                        'MT SAUDE', 'UNIMED - CO PARTICIPACAO', 'UNIMED - MENSALIDADE'
-                    ];
-                    
-                    // Função para verificar se um desconto está em uma lista
-                    const estaEmLista = (descricao, lista) => {
+                    // Função para obter ordem de eliminação de um desconto
+                    const obterOrdem = (descricao) => {
                         const descUpper = descricao.toUpperCase().trim();
-                        return lista.some(item => {
-                            const itemUpper = item.toUpperCase().trim();
-                            // Verifica correspondência exata ou se contém o item completo
-                            return descUpper === itemUpper || 
-                                   descUpper.includes(itemUpper) ||
-                                   itemUpper.includes(descUpper);
-                        });
+                        
+                        // Buscar correspondência exata
+                        if (ordemEliminacao[descUpper]) {
+                            return ordemEliminacao[descUpper];
+                        }
+                        
+                        // Buscar correspondência parcial
+                        for (const [key, value] of Object.entries(ordemEliminacao)) {
+                            if (descUpper.includes(key) || key.includes(descUpper)) {
+                                return value;
+                            }
+                        }
+                        
+                        // Se não encontrou, retornar ordem 5 (última)
+                        return { ordem: 5, nome_ordem: 'Não classificado' };
                     };
                     
-                    // Simular eliminações
-                    let descontosParaEliminar = [];
-                    let totalEliminado = 0;
+                    // Agrupar descontos por ordem de eliminação
+                    const descontosPorOrdem = {};
+                    beneficiario.descontos_extras.forEach(desc => {
+                        const infoOrdem = obterOrdem(desc.descricao);
+                        const ordem = infoOrdem.ordem;
+                        
+                        if (!descontosPorOrdem[ordem]) {
+                            descontosPorOrdem[ordem] = {
+                                nome_ordem: infoOrdem.nome_ordem,
+                                descontos: []
+                            };
+                        }
+                        
+                        descontosPorOrdem[ordem].descontos.push(desc);
+                    });
                     
                     // Função para encontrar melhor combinação dentro de um grupo
-                    const encontrarMelhorCombinacao = (descontos, totalJaEliminado) => {
+                    const encontrarMelhorCombinacao = (descontos, descontosAtuais) => {
                         if (descontos.length === 0) return [];
                         
+                        const percentualAtualCalc = baseCalculo > 0 ? (descontosAtuais / baseCalculo * 100) : 0;
+                        if (percentualAtualCalc <= 35) return []; // Já atingiu meta
+                        
                         let melhorCombinacao = [];
-                        let melhorPercentual = percentualAtual;
+                        let melhorPercentual = percentualAtualCalc;
                         let melhorDistancia = Infinity;
                         
-                        // Limitar combinações se houver muitos itens (performance)
-                        const maxCombinacoes = Math.min(Math.pow(2, descontos.length), 65536);
+                        // Limitar combinações para performance
+                        const maxCombinacoes = Math.min(Math.pow(2, descontos.length), 32768);
                         
-                        for (let i = 1; i < maxCombinacoes; i++) { // Começa em 1 para evitar combinação vazia
-                            let somaTemp = totalJaEliminado;
+                        for (let i = 1; i < maxCombinacoes; i++) {
+                            let somaTemp = 0;
                             let combinacaoTemp = [];
                             
-                            for (let j = 0; j < descontos.length && j < 16; j++) {
+                            for (let j = 0; j < Math.min(descontos.length, 15); j++) {
                                 if (i & (1 << j)) {
                                     somaTemp += descontos[j].valor;
                                     combinacaoTemp.push(descontos[j]);
                                 }
                             }
                             
-                            const novoDescontoTotal = descontosExtras - somaTemp;
+                            const novoDescontoTotal = descontosAtuais - somaTemp;
                             const novoPercentual = baseCalculo > 0 ? (novoDescontoTotal / baseCalculo * 100) : 0;
                             
-                            // Aceita se <= 35% e é o mais próximo de 35%
+                            // Preferir combinação que chegue mais próximo de 35% (sem ultrapassar para baixo)
                             if (novoPercentual <= 35) {
                                 const distancia = 35 - novoPercentual;
                                 if (distancia < melhorDistancia) {
@@ -1834,7 +1874,7 @@ def gerar_html_relatorio(dados_folhas):
                             }
                         }
                         
-                        // Se nenhuma combinação atingiu <= 35%, elimina todos do grupo para tentar no próximo
+                        // Se nenhuma combinação atingiu <= 35%, pega todos do grupo
                         if (melhorCombinacao.length === 0 && descontos.length > 0) {
                             return descontos;
                         }
@@ -1842,82 +1882,45 @@ def gerar_html_relatorio(dados_folhas):
                         return melhorCombinacao;
                     };
                     
-                    // ETAPA 1: CARTÕES - ELIMINAÇÃO OBRIGATÓRIA (todos)
-                    const cartoesParaEliminar = beneficiario.descontos_extras.filter(desc => 
-                        estaEmLista(desc.descricao, prioridade1)
-                    );
+                    // Processar eliminações seguindo a ordem: 1, 2, 3, 4
+                    let descontosParaEliminar = [];
+                    let descontosRestantes = descontosExtras;
                     
-                    cartoesParaEliminar.forEach(desc => {
-                        descontosParaEliminar.push({
-                            descricao: desc.descricao,
-                            valor: desc.valor,
-                            prioridade: 'Cartões (Prioridade Máxima)'
-                        });
-                        totalEliminado += desc.valor;
-                    });
-                    
-                    // Verificar percentual após eliminar cartões
-                    let percentualAtualCalc = baseCalculo > 0 ? ((descontosExtras - totalEliminado) / baseCalculo * 100) : 0;
-                    
-                    // ETAPA 2: CONSIGNAÇÕES (se ainda > 35%)
-                    if (percentualAtualCalc > 35) {
-                        const consignacoesDisponiveis = beneficiario.descontos_extras.filter(desc => 
-                            estaEmLista(desc.descricao, prioridade2) && 
-                            !descontosParaEliminar.some(e => e.descricao === desc.descricao)
-                        );
+                    for (let ordemAtual = 1; ordemAtual <= 5; ordemAtual++) {
+                        if (!descontosPorOrdem[ordemAtual]) continue;
                         
-                        const melhorConsignacoes = encontrarMelhorCombinacao(consignacoesDisponiveis, totalEliminado);
-                        melhorConsignacoes.forEach(desc => {
-                            descontosParaEliminar.push({
-                                descricao: desc.descricao,
-                                valor: desc.valor,
-                                prioridade: 'Consignações'
+                        const grupoAtual = descontosPorOrdem[ordemAtual];
+                        const percentualAtualCalc = baseCalculo > 0 ? (descontosRestantes / baseCalculo * 100) : 0;
+                        
+                        // Se já atingiu <= 35%, parar
+                        if (percentualAtualCalc <= 35) break;
+                        
+                        // Se ordem 1 (Prioridade Máxima), eliminar TODOS
+                        if (ordemAtual === 1) {
+                            grupoAtual.descontos.forEach(desc => {
+                                descontosParaEliminar.push({
+                                    descricao: desc.descricao,
+                                    valor: desc.valor,
+                                    prioridade: grupoAtual.nome_ordem
+                                });
+                                descontosRestantes -= desc.valor;
                             });
-                            totalEliminado += desc.valor;
-                        });
-                        
-                        percentualAtualCalc = baseCalculo > 0 ? ((descontosExtras - totalEliminado) / baseCalculo * 100) : 0;
+                        } else {
+                            // Para ordens 2, 3, 4: encontrar melhor combinação
+                            const melhorCombinacao = encontrarMelhorCombinacao(grupoAtual.descontos, descontosRestantes);
+                            melhorCombinacao.forEach(desc => {
+                                descontosParaEliminar.push({
+                                    descricao: desc.descricao,
+                                    valor: desc.valor,
+                                    prioridade: grupoAtual.nome_ordem
+                                });
+                                descontosRestantes -= desc.valor;
+                            });
+                        }
                     }
                     
-                    // ETAPA 3: ASSOCIAÇÕES (se ainda > 35%)
-                    if (percentualAtualCalc > 35) {
-                        const associacoesDisponiveis = beneficiario.descontos_extras.filter(desc => 
-                            estaEmLista(desc.descricao, prioridade3) && 
-                            !descontosParaEliminar.some(e => e.descricao === desc.descricao)
-                        );
-                        
-                        const melhorAssociacoes = encontrarMelhorCombinacao(associacoesDisponiveis, totalEliminado);
-                        melhorAssociacoes.forEach(desc => {
-                            descontosParaEliminar.push({
-                                descricao: desc.descricao,
-                                valor: desc.valor,
-                                prioridade: 'Associações'
-                            });
-                            totalEliminado += desc.valor;
-                        });
-                        
-                        percentualAtualCalc = baseCalculo > 0 ? ((descontosExtras - totalEliminado) / baseCalculo * 100) : 0;
-                    }
-                    
-                    // ETAPA 4: PLANOS DE SAÚDE - MEDIDA EXTREMA (se ainda > 35%)
-                    if (percentualAtualCalc > 35) {
-                        const saudeDisponiveis = beneficiario.descontos_extras.filter(desc => 
-                            estaEmLista(desc.descricao, prioridade4) && 
-                            !descontosParaEliminar.some(e => e.descricao === desc.descricao)
-                        );
-                        
-                        const melhorSaude = encontrarMelhorCombinacao(saudeDisponiveis, totalEliminado);
-                        melhorSaude.forEach(desc => {
-                            descontosParaEliminar.push({
-                                descricao: desc.descricao,
-                                valor: desc.valor,
-                                prioridade: 'Planos de Saúde (Medida Extrema)'
-                            });
-                            totalEliminado += desc.valor;
-                        });
-                    }
-                    
-                    const novoTotalExtras = descontosExtras - totalEliminado;
+                    const totalEliminado = descontosExtras - descontosRestantes;
+                    const novoTotalExtras = descontosRestantes;
                     const novoPercentual = baseCalculo > 0 ? (novoTotalExtras / baseCalculo * 100) : 0;
                     const novoLiquido = proventos - descontosObrig - novoTotalExtras;
                     
@@ -1968,10 +1971,17 @@ def gerar_html_relatorio(dados_folhas):
                         const percentualAjustado = baseCalculo > 0 ? (novoDescontoAposEste / baseCalculo * 100) : 0;
                         const restaEliminar = Math.max(0, novoDescontoAposEste - limiteIdeal);
                         
-                        let corCategoria = '#dc3545';
-                        if (desc.prioridade.includes('Consignações')) corCategoria = '#fd7e14';
-                        if (desc.prioridade.includes('Associações')) corCategoria = '#ffc107';
-                        if (desc.prioridade.includes('Saúde')) corCategoria = '#17a2b8';
+                        // Definir cor baseada no texto da prioridade
+                        let corCategoria = '#6c757d'; // Cinza padrão
+                        if (desc.prioridade.includes('1 -') || desc.prioridade.includes('Prioridade Máxima')) {
+                            corCategoria = '#dc3545'; // Vermelho para prioridade 1
+                        } else if (desc.prioridade.includes('2 -') || desc.prioridade.includes('Facultativo Nível 2')) {
+                            corCategoria = '#fd7e14'; // Laranja para prioridade 2
+                        } else if (desc.prioridade.includes('3 -') || desc.prioridade.includes('Facultativo Nível 3')) {
+                            corCategoria = '#ffc107'; // Amarelo para prioridade 3
+                        } else if (desc.prioridade.includes('4 -') || desc.prioridade.includes('Analisar suspensão')) {
+                            corCategoria = '#17a2b8'; // Azul para prioridade 4
+                        }
                         
                         html += `
                                         <tr style="border-bottom: 1px solid #dee2e6; ${idx % 2 === 0 ? 'background: #f8f9fa;' : ''}">
@@ -2039,8 +2049,12 @@ def gerar_html_relatorio(dados_folhas):
                             <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-top: 20px; border-left: 4px solid #ffc107;">
                                 <strong style="color: #856404;">💡 Recomendação:</strong>
                                 <p style="color: #856404; margin: 10px 0 0 0; line-height: 1.6;">
-                                    Entre em contato com o servidor para orientar sobre a necessidade de renegociação ou cancelamento dos contratos listados acima. 
-                                    Priorize sempre a eliminação de cartões de crédito consignados antes de outras modalidades.
+                                    Entre em contato com o servidor para orientar sobre a necessidade de renegociação ou cancelamento dos contratos listados acima.<br>
+                                    <strong>A ordem de eliminação segue a hierarquia institucional:</strong><br>
+                                    🔴 <strong>Prioridade 1:</strong> Cartões (eliminação obrigatória de todos)<br>
+                                    🟠 <strong>Prioridade 2:</strong> Consignações bancárias (melhor combinação para atingir 35%)<br>
+                                    🟡 <strong>Prioridade 3:</strong> Associações e sindicatos<br>
+                                    🔵 <strong>Prioridade 4:</strong> Planos de saúde e previdência complementar (medida extrema)
                                 </p>
                             </div>
                         </div>
