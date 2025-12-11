@@ -2,7 +2,7 @@
 
 **Sistema:** Análise de Folha de Pagamento - ALMT  
 **Criado:** 23/10/2025  
-**Última atualização:** 10/12/2025
+**Última atualização:** 11/12/2025
 
 ---
 
@@ -346,6 +346,137 @@ from datetime import datetime
 ---
 
 ## 📅 ATUALIZAÇÕES - DEZEMBRO 2025
+
+### 11/12/2025 - Ordem de Eliminação Parametrizada
+
+#### 🎯 Nova Funcionalidade: Ordem de Eliminação via Excel
+
+**Planilha "Ordem de Eliminação" adicionada ao Descricao_Comp_Rend.xlsx**
+
+A ordem de eliminação de descontos para ajuste de margem consignável agora é **totalmente parametrizável via Excel**, eliminando hardcode no sistema.
+
+**Estrutura da Planilha:**
+| Coluna | Descrição |
+|--------|-----------|
+| CÓDIGO | Código do evento (mesmo da folha) |
+| DESCRIÇÃO EVENTOS | Nome exato do evento (UPPERCASE) |
+| TIPO | Desconto Facultativo (extra) |
+| ORDEM | Prioridade de eliminação (1 a 4) |
+
+**Hierarquia de Eliminação:**
+
+🔴 **Prioridade 1 - Prioridade Máxima** (Eliminação obrigatória de TODOS)
+- 7 eventos: Cartões de crédito/benefício
+- Estratégia: Eliminar **100% dos cartões** automaticamente
+- Exemplos: BIG CARD, EAGLE, NIO, BMG, MTXCARD, SUDACRED
+
+🟠 **Prioridade 2 - Facultativo Nível 2** (Otimização inteligente)
+- 56 eventos: Consignações bancárias e CREDLEGIS
+- Estratégia: **Melhor combinação** para atingir ≤35%
+- Algoritmo: Testa até 32.768 combinações para encontrar o ponto ideal mais próximo de 35%
+- Exemplos: Consignações B.BRASIL, BANCOOB, BRADESCO, CEF, DAYCOVAL, SICOOB, SICREDI, SUDACRED
+
+🟡 **Prioridade 3 - Facultativo Nível 3** (Secundário)
+- 5 eventos: Associações e sindicatos
+- Estratégia: **Melhor combinação** dentro do grupo
+- Exemplos: APRALE, ASLEM, ASSALMAT, SINDAL, UNALE
+
+🔵 **Prioridade 4 - Analisar Suspensão** (Medida extrema)
+- 12 eventos: Planos de saúde e previdência complementar
+- Estratégia: **Melhor combinação** apenas se necessário
+- Exemplos: GEAP SAÚDE, MT SAUDE, UNIMED, PREVCOM
+
+**Lógica de Processamento:**
+
+```javascript
+// 1. Carregar ordem de eliminação do Excel
+const ordemEliminacao = {...}; // Carregado via Python
+
+// 2. Classificar cada desconto do servidor
+obterOrdem(descricao) → {ordem: 1-4, nome_ordem: "texto"}
+
+// 3. Agrupar descontos por ordem
+descontosPorOrdem = {
+  1: [cartões],
+  2: [consignações],
+  3: [associações],
+  4: [saúde/previdência]
+}
+
+// 4. Processar em sequência: 1 → 2 → 3 → 4
+Para cada ordem:
+  - Se ordem == 1: eliminar TODOS
+  - Se ordem >= 2: encontrarMelhorCombinacao()
+  - Se percentual <= 35%: PARAR
+```
+
+**Algoritmo de Melhor Combinação:**
+
+```javascript
+encontrarMelhorCombinacao(descontos, descontosAtuais) {
+  // Testa todas combinações possíveis (até 32.768)
+  // Objetivo: percentual <= 35% mais próximo de 35%
+  
+  Para cada combinação:
+    novoPercentual = (descontosRestantes / margem) * 100
+    
+    Se novoPercentual <= 35:
+      distancia = 35 - novoPercentual
+      Se distancia < melhorDistancia:
+        melhorCombinacao = combinação atual
+  
+  // Se nenhuma atinge <=35%, elimina TODOS do grupo
+  return melhorCombinacao ou todosDoGrupo
+}
+```
+
+**Vantagens:**
+
+1. ✅ **Flexibilidade Total** - Basta editar Excel para mudar prioridades
+2. ✅ **Sem Código** - Não precisa mexer em gerar_relatorio.py
+3. ✅ **Otimização Matemática** - Elimina apenas o necessário (exceto prioridade 1)
+4. ✅ **Transparência** - Ordem clara e documentada na planilha
+5. ✅ **Institucional** - Decisões técnicas centralizadas no Excel
+
+**Exemplo Prático:**
+
+Servidor com 50% de margem comprometida:
+1. **Elimina** todos os 2 cartões (R$ 500) → 42%
+2. **Testa** 1.024 combinações de 10 consignações
+3. **Seleciona** 3 consignações específicas (R$ 800) → 34.8% ✅
+4. **Não toca** em associações (já atingiu meta)
+5. **Preserva** plano de saúde
+
+**Código Implementado:**
+
+```python
+# gerar_relatorio.py - Linhas 34-77
+def carregar_ordem_eliminacao():
+    df_ordem = pd.read_excel('Descricao_Comp_Rend.xlsx', 
+                              sheet_name='Ordem de Eliminação')
+    
+    prioridades = {}
+    for _, row in df_ordem.iterrows():
+        descricao = str(row['DESCRIÇÃO EVENTOS']).upper()
+        ordem_texto = str(row['ORDEM'])
+        
+        # Extrair número 1, 2, 3 ou 4
+        if '1 -' in ordem_texto: ordem_num = 1
+        elif '2 -' in ordem_texto: ordem_num = 2
+        # ... etc
+        
+        prioridades[descricao] = {
+            'ordem': ordem_num,
+            'nome_ordem': ordem_texto
+        }
+    
+    return prioridades
+
+# Carregar na inicialização
+ORDEM_ELIMINACAO = carregar_ordem_eliminacao()
+```
+
+---
 
 ### 10/12/2025 - Otimização e Correções Críticas
 

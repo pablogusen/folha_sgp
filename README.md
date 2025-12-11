@@ -3,7 +3,7 @@
 Sistema automatizado para processamento de folhas de pagamento em PDF da Assembleia Legislativa de Mato Grosso, gerando relatórios HTML interativos com análise detalhada de saúde financeira dos beneficiários.
 
 **🌐 Versão Online:** https://pablogusen.github.io/folha_sgp/  
-**Última atualização:** 10/12/2025
+**Última atualização:** 11/12/2025
 
 ---
 
@@ -79,9 +79,9 @@ pip install PyPDF2 pandas openpyxl
 
 ```
 Folha_SGP/
-├── gerar_relatorio.py          # Script principal (2,381 linhas)
-├── Descricao_Comp_Rend.xlsx    # Parametrização (137 eventos)
-├── index.html                  # Relatório gerado (1,077 KB)
+├── gerar_relatorio.py          # Script principal (2,402 linhas)
+├── Descricao_Comp_Rend.xlsx    # Parametrização (137 eventos + ordem eliminação)
+├── index.html                  # Relatório gerado (1,363 KB)
 ├── dados_folhas_backup.json    # Backup estruturado
 ├── CONHECIMENTO_BASE.md        # Documentação técnica
 ├── README.md                   # Este arquivo
@@ -108,7 +108,25 @@ Acesse: https://pablogusen.github.io/folha_sgp/
 
 ## 🎯 Destaques da Versão Atual
 
-### ✅ Recentemente Implementado (10/12/2025)
+### ✅ Recentemente Implementado
+
+**11/12/2025 - Ordem de Eliminação Parametrizada**
+1. **Nova Planilha Excel**: "Ordem de Eliminação"
+   - 80 eventos com prioridades 1-4
+   - Hierarquia institucional definida via Excel
+   
+2. **Algoritmo Inteligente de Otimização**
+   - Prioridade 1: Elimina TODOS os cartões (obrigatório)
+   - Prioridades 2-4: Melhor combinação matemática
+   - Testa até 32.768 combinações para maximizar líquido
+   - Busca percentual mais próximo de 35%
+
+3. **Sem Hardcode**
+   - Ordem totalmente parametrizável
+   - Mudanças via Excel (sem mexer no código)
+   - Flexibilidade para ajustes institucionais
+
+**10/12/2025 - Transparência e Correções**
 
 1. **Seção Composição de Rendimentos**
    - 4 tabelas visuais com todos os 137 eventos
