@@ -2,26 +2,41 @@
 
 **Sistema:** Análise de Folha de Pagamento - ALMT  
 **Criado:** 23/10/2025  
-**Última atualização:** 11/12/2025
+**Última atualização:** 12/12/2025
 
 ---
 
 ## 🎯 VISÃO GERAL DO SISTEMA
 
 ### Objetivo
-Processar arquivos PDF de folha de pagamento da Assembleia Legislativa de Mato Grosso, extraindo dados estruturados e gerando relatórios HTML interativos com análises de saúde financeira dos beneficiários.
+Processar arquivos PDF de folha de pagamento da Assembleia Legislativa de Mato Grosso, extraindo dados estruturados e gerando relatórios HTML interativos com análises de margem consignável e saúde financeira dos beneficiários conforme **Resolução Administrativa nº 14/2025, Art. 5º**.
 
 ### Arquivos Principais
-- **gerar_relatorio.py** (2460 linhas) - Script principal de processamento
+- **gerar_relatorio.py** (2634 linhas) - Script principal de processamento
 - **Descricao_Comp_Rend.xlsx** - Planilha de parametrização com 137 eventos classificados
-- **index.html** - Relatório HTML gerado automaticamente (sincronizado com GitHub)
+- **index.html** - Relatório HTML gerado automaticamente (sincronizado com GitHub Pages)
 - **dados_folhas_backup.json** - Backup estruturado dos dados extraídos
 
 ### Capacidade
-- Processa ~650 holerites em ~105 segundos (6 holerites/segundo)
+- Processa ~650 holerites em ~110 segundos (6 holerites/segundo)
 - Extração automática de competência do PDF
 - Consolidação de holerites multi-página
-- Análise de margem consignável e identificação de situações críticas
+- Análise de margem consignável com limite legal de 35%
+- Identificação de 4 categorias de situação financeira
+
+---
+
+## ⚖️ BASE LEGAL
+
+### Resolução Administrativa nº 14/2025, Art. 5º
+> "As consignações facultativas não poderão exceder ao valor da margem consignável, equivalente a **35% (trinta e cinco por cento)** da remuneração líquida mensal do consignado, sendo limitadas a até 5 (cinco) empréstimos por servidor e até 120 (cento e vinte) parcelas por operação."
+
+**Implicações:**
+- Limite legal: 35% da RLM (Remuneração Líquida Mensal)
+- RLM = Proventos - Descontos Compulsórios (Obrigatórios)
+- Limite Ideal = RLM × 0,35
+- Percentual = (Descontos Facultativos / Limite Ideal) × 100
+- Crítico: Percentual > 100% (descontos > 35% da RLM)
 
 ---
 
@@ -41,24 +56,36 @@ PDF Input → Extração Dados → Classificação Eventos → Cálculo Margem �
 3. **Lookup na planilha:** Busca tupla `(codigo, descricao)` em `Descricao_Comp_Rend.xlsx`
 4. **Classificação:** Atribui tipo (Provento, Desconto Obrigatório, Desconto Facultativo, Omitir)
 
-### Cálculo de Margem Consignável
+### Cálculo de Margem Consignável (ATUALIZADO - Dez/2025)
 
 ```python
-# Base para cálculo do percentual
-liquido_final = dados['liquido']  # Valor que o servidor efetivamente recebe
+# FÓRMULA OFICIAL (conforme Resolução Administrativa nº 14/2025)
+# Base: RLM (Remuneração Líquida Mensal)
 
-# Eventos que entram no cálculo (conforme planilha)
-proventos = eventos classificados como "Provento"
-descontos_obrigatorios = eventos "Desconto Compulsório obrigatório"
-descontos_extras = eventos "Desconto Facultativo extra"
+# 1. Calcular RLM (Base Margem)
+RLM = total_proventos - total_descontos_obrigatorios
 
-# Percentual de comprometimento
-percentual_margem = (descontos_extras / liquido_final) * 100
+# 2. Calcular Limite Ideal (35% da RLM)
+limite_ideal = RLM * 0.35
 
-# Situação crítica
-if percentual_margem > 35%:
+# 3. Calcular Percentual sobre o Limite
+percentual = (descontos_facultativos / limite_ideal) * 100
+
+# 4. Classificar Saúde Financeira
+if percentual < 57:      # < 20% da RLM
+    status = "SAUDÁVEL"
+elif percentual < 86:    # 20-30% da RLM
+    status = "ATENÇÃO"
+elif percentual <= 100:  # 30-35% da RLM
+    status = "RISCO"
+else:                    # > 35% da RLM (ILEGAL)
     status = "CRÍTICO"
 ```
+
+**Mudança conceitual importante:**
+- ❌ Antes: Percentual sobre líquido final
+- ✅ Agora: Percentual sobre limite ideal de 35%
+- 🎯 Foco: Capacidade de endividamento consignado disponível
 
 ---
 
@@ -69,13 +96,30 @@ if percentual_margem > 35%:
 **Sheet 1: "Composição de Rendimentos"**
 - Código | Descrição Eventos | Tipo
 - 137 eventos mapeados
+- **IMPORTANTE:** Lookup por tupla `(codigo, descricao)` - mesmo evento pode ter classificação diferente por código
 
-**Sheet 2: "Regra de Aplicação"**
-- Define 4 tipos de classificação:
-  1. **Provento** - Entradas/receitas
-  2. **Desconto Compulsório obrigatório** - Previdência, IR, pensão alimentícia
-  3. **Desconto Facultativo extra** - Consignados, cartões, planos
-  4. **Omitir do cálculo** - Eventos informativos (não entram na margem)
+**Sheet 2: "Ordem de Eliminação"**
+- Define prioridade para eliminação de descontos facultativos
+- 4 níveis: Prioridade Máxima → Nível 2 → Nível 3 → Nível 4
+- Usado na seção "AJUSTE DE MARGEM CONSIGNÁVEL"
+
+### Tipos de Classificação
+
+1. **Provento** - Entradas/receitas que compõem a RLM
+2. **Desconto Compulsório (obrigatório)** - Reduzem a RLM (INSS, IR, pensão)
+3. **Desconto Facultativo (extra)** - Consomem o limite de 35% (consignados, cartões)
+4. **Omitir do cálculo** - Informativos, não impactam margem (auxílios, adiantamentos, rescisões)
+
+### Regras Especiais de Classificação
+
+**SUBSÍDIO pode ter 2 tratamentos:**
+- Código **1**: Provento (entra no cálculo)
+- Código **22**: Omitir do cálculo (não entra)
+
+**CONSOLIDAÇÃO REMOVIDA (Dez/2025):**
+- ❌ Não consolidar bancos (ex: "CONSIG BCO BRASIL" → "BANCO DO BRASIL")
+- ✅ Registrar lançamento por lançamento (cada código é único)
+- 🎯 Motivo: Cada lançamento pode ter código diferente
 
 ### Eventos Especiais Adicionados
 
@@ -144,6 +188,76 @@ percentual = (descontos_extras / liquido_final) * 100
 ```
 
 **Impacto:** Correção crítica no cálculo - agora usa valor líquido real como denominador.
+
+---
+
+## 🆕 ATUALIZAÇÕES CONSOLIDADAS (DEZEMBRO/2025)
+
+### 📊 Relatório HTML - 4 Seções de Alerta
+
+**1. BENEFICIÁRIOS EM SITUAÇÃO CRÍTICA** (Vermelho 🚨)
+- > 100% do limite legal (> 35% da RLM)
+- 6 colunas: Nome, Situação, Base Margem, Limite (35%), Descontos Facultativos, % do Limite
+- Link clicável para relatório individual
+
+**2. BENEFICIÁRIOS COM RESCISÃO DE TRABALHO** (Azul 📋)
+- Detecta evento "13" + "RESCIS" em proventos ou informativos
+- 2 colunas: Nome, Desconto Facultativo (Sim/Não)
+- Não estarão na próxima competência
+
+**3. SERVIDORES CEDIDOS** (Laranja 👤)
+- Regra: TEM "REPRESENTACAO CONF LC 04/90 - ART. 59" E NÃO TEM "SUBSÍDIO" código 1
+- Remuneração paga pelo órgão de origem
+- Margem pode estar baseada em eventos omitidos
+
+**4. CASOS ATÍPICOS** (Amarelo ⚡)
+- **Critério 1:** Margem ≤ 0 (não rescisão, não cedido)
+- **Critério 2:** Proventos = 0 mas com descontos
+- **Critério 3:** RLM ≠ Líquido sem descontos facultativos (diferença > R$ 0,10)
+- 4 colunas: Nome, Situação, Margem (RLM), Motivo
+
+### 📈 Classificação Unificada de Saúde Financeira
+
+**Thresholds padronizados** (baseados no limite ideal de 35%):
+
+| Categoria | Threshold | Equivalência | Contador Geral | Barra Individual |
+|-----------|-----------|--------------|----------------|------------------|
+| SAUDÁVEL | < 57% | < 20% da RLM | ✅ | ✅ SAUDÁVEL |
+| ATENÇÃO | 57-86% | 20-30% da RLM | ✅ | ✅ ATENÇÃO |
+| RISCO | 86-100% | 30-35% da RLM | ✅ | ✅ RISCO |
+| CRÍTICO | > 100% | > 35% da RLM | ✅ | ✅ CRÍTICO |
+
+**Consistência:** Mesma categoria no relatório geral e individual.
+
+### 🔧 Nomenclatura Padronizada
+
+| Anterior | Atual |
+|----------|-------|
+| Descontos Obrigatórios | Descontos Compulsórios (Obrigatórios) |
+| Descontos Extras | Descontos Facultativos |
+| CÁLCULO DO VALOR LÍQUIDO | EXTRATO DA MARGEM |
+| Margem Consignável | RLM (Base Margem) |
+| % sobre Líquido Final | % do Limite |
+
+### ⚙️ Mudanças Técnicas
+
+**Remoção de Consolidação:**
+- ❌ Não consolidar bancos (CONSIG BCO BRASIL → BANCO DO BRASIL)
+- ❌ Não consolidar MT SAUDE (manter PADRAO, ESPECIAL, CO-PARTICIPACAO separados)
+- ✅ Cada lançamento mantém seu código único
+
+**Detecção de Rescisão Flexibilizada:**
+```python
+# Antes: busca exata '13º SALÁRIO FIXO RESCISÃO'
+# Agora: busca '13' E 'RESCIS' (flexível)
+tem_rescisao = any('13' in desc and 'RESCIS' in desc 
+                   for desc in proventos + eventos_informativos)
+```
+
+**Sistema de Notificação:**
+- Alerta amarelo no topo quando eventos não mapeados aparecem
+- Arquivo `EVENTOS_NAO_CLASSIFICADOS.txt` (se houver)
+- 🔔 **LEMBRETE:** Ao processar nova competência, verificar se há novos eventos!
 
 ---
 
@@ -286,7 +400,7 @@ if liquido_final > 0:
 - ~~comparar_situacao_critica.py~~
 
 ### Arquivos Duplicados Eliminados
-- ~~Relatorio_Folha_Pagamento.html~~ → Agora gera apenas `index.html`
+- Script agora gera diretamente `index.html` (sem necessidade de cópia)
 
 ---
 

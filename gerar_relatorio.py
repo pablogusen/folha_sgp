@@ -339,51 +339,6 @@ def gerar_html_relatorio(dados_folhas):
     tipos_descontos_obrigatorios = {}
     tipos_descontos_facultativos = {}
     
-    # Mapeamento de consolidação para descontos facultativos
-    mapa_consolidacao_facultativos = {
-        'CONSIG. BCO BRASIL': 'BANCO DO BRASIL',
-        'CONSIG BANCO DO BRASIL': 'BANCO DO BRASIL',
-        'CONSIG BANCO BRASIL': 'BANCO DO BRASIL',
-        'CONS.BANCO BRASIL': 'BANCO DO BRASIL',
-        'CONS.BANCO DO BRASIL': 'BANCO DO BRASIL',
-        'CONS BANCO BRASIL': 'BANCO DO BRASIL',
-        'BIGCARD': 'BIGCARD',
-        'BANCO BRADESCO': 'BANCO BRADESCO',
-        'CONSIGNADO BRADESCO': 'BANCO BRADESCO',
-        'CONSIGNADO BRADESSCO': 'BANCO BRADESCO',
-        'CONSIGNACAO BANCOOB': 'BANCOOB',
-        'CONSIGANDO BANCOOB': 'BANCOOB',
-        'CONSIGNADO SICOOB': 'SICOOB',
-        'CONSIGNAÇÃO SICOOB': 'SICOOB',
-        'CREDLEGIS EMPRESTIMO': 'SICOOB',
-        'EMPRESTIMO CREDLEGIS': 'SICOOB',
-        'CREDLEGIS': 'SICOOB',
-        'CREDLEGIS - EMPRESTIMOS': 'SICOOB',
-        'DESCONTO CREDLEGIS': 'SICOOB',
-        'MT SAUDE PADRAO': 'MT SAUDE',
-        'MT SAUDE ESPECIAL': 'MT SAUDE',
-        'MT SAUDE CO-PARTICIPACAO': 'MT SAUDE',
-        'SINDAL': 'SINDAL',
-        'ASAPAL': 'ASAPAL',
-        'NIO DIGITAL': 'NIO',
-        'CONSIGNADO CARTAO EAGLE': 'EAGLE',
-        'CONSIGNADO CARTAO CREDITO EAGLE': 'EAGLE',
-        'CONSIGNADO BENEFICIO EAGLE': 'EAGLE',
-        'CONSIGNADO SICREDI': 'SICREDI'
-    }
-    
-    # Mapa de consolidação para descontos obrigatórios
-    mapa_consolidacao_obrigatorios = {
-        'IMPOSTO DE RENDA NA FONTE': 'IRRF IMPOSTO DE RENDA',
-        'ISSSPL-PREVIDENCIA': 'ISSSPL-PREVIDENCIA',
-        'ABATIMENTO TETO CONSTITUCIONAL': 'ABATIMENTO DO TETO',
-        'PENSAO ALIMENTICIA CALCULADA': 'PENSÃO ALIMENTÍCIA',
-        'PENSAO ALIMENTICIA': 'PENSÃO ALIMENTÍCIA',
-        'DESCONTO DETERMINACAO JUDICIAL': 'DESCONTOS JUDICIAIS',
-        'DESCONTO DETERMINAÇAO JUDICIAL': 'DESCONTOS JUDICIAIS',
-        'DESCONTO JUDICIAL': 'DESCONTOS JUDICIAIS'
-    }
-    
     for folha in dados_folhas:
         situacao = folha.get('situacao', '').upper()
         eh_aposentado = 'APOSENTAD' in situacao
@@ -402,34 +357,32 @@ def gerar_html_relatorio(dados_folhas):
                 tipos_proventos[desc]['outros'].append(provento['valor'])
         
         for desconto in folha.get('descontos_obrigatorios', []):
-            tipo_original = desconto['descricao']
+            desc = desconto['descricao']
             valor = desconto['valor']
-            # Consolidar usando o mapeamento
-            tipo_consolidado = mapa_consolidacao_obrigatorios.get(tipo_original, tipo_original)
-            if tipo_consolidado not in tipos_descontos_obrigatorios:
-                tipos_descontos_obrigatorios[tipo_consolidado] = {'aposentados': [], 'pensionistas': [], 'outros': []}
+            # Sem consolidação - registrar lançamento por lançamento
+            if desc not in tipos_descontos_obrigatorios:
+                tipos_descontos_obrigatorios[desc] = {'aposentados': [], 'pensionistas': [], 'outros': []}
             
             if eh_aposentado:
-                tipos_descontos_obrigatorios[tipo_consolidado]['aposentados'].append(valor)
+                tipos_descontos_obrigatorios[desc]['aposentados'].append(valor)
             elif eh_pensionista:
-                tipos_descontos_obrigatorios[tipo_consolidado]['pensionistas'].append(valor)
+                tipos_descontos_obrigatorios[desc]['pensionistas'].append(valor)
             else:
-                tipos_descontos_obrigatorios[tipo_consolidado]['outros'].append(valor)
+                tipos_descontos_obrigatorios[desc]['outros'].append(valor)
         
         for desconto in folha.get('descontos_extras', []):
-            tipo_original = desconto['descricao']
+            desc = desconto['descricao']
             valor = desconto['valor']
-            # Consolidar usando o mapeamento
-            tipo_consolidado = mapa_consolidacao_facultativos.get(tipo_original, tipo_original)
-            if tipo_consolidado not in tipos_descontos_facultativos:
-                tipos_descontos_facultativos[tipo_consolidado] = {'aposentados': [], 'pensionistas': [], 'outros': []}
+            # Sem consolidação - registrar lançamento por lançamento
+            if desc not in tipos_descontos_facultativos:
+                tipos_descontos_facultativos[desc] = {'aposentados': [], 'pensionistas': [], 'outros': []}
             
             if eh_aposentado:
-                tipos_descontos_facultativos[tipo_consolidado]['aposentados'].append(valor)
+                tipos_descontos_facultativos[desc]['aposentados'].append(valor)
             elif eh_pensionista:
-                tipos_descontos_facultativos[tipo_consolidado]['pensionistas'].append(valor)
+                tipos_descontos_facultativos[desc]['pensionistas'].append(valor)
             else:
-                tipos_descontos_facultativos[tipo_consolidado]['outros'].append(valor)
+                tipos_descontos_facultativos[desc]['outros'].append(valor)
     
     html = f"""<!DOCTYPE html>
 <html lang="pt-BR">
@@ -1077,6 +1030,9 @@ def gerar_html_relatorio(dados_folhas):
     sem_descontos = 0
     
     beneficiarios_criticos = []  # Lista para armazenar beneficiários em situação crítica (>35%)
+    beneficiarios_rescisao = []  # Lista para armazenar beneficiários em rescisão
+    servidores_cedidos = []  # Lista para armazenar servidores cedidos
+    casos_atipicos = []  # Lista para armazenar casos atípicos
     
     for dados in dados_folhas:
         descontos_extras = dados.get('total_descontos_extras', 0)
@@ -1085,36 +1041,98 @@ def gerar_html_relatorio(dados_folhas):
         # Calcular margem consignável (base de cálculo para empréstimos)
         margem_consignavel = dados.get('total_proventos', 0) - dados.get('total_descontos_obrigatorios', 0)
         
+        # Verificar se há evento de rescisão (busca flexível)
+        tem_rescisao = any(
+            '13' in evento.get('descricao', '').upper() and 'RESCIS' in evento.get('descricao', '').upper()
+            for evento in dados.get('proventos', []) + dados.get('eventos_informativos', [])
+        )
+        
+        # Verificar se é servidor cedido
+        # Regra: TEM "REPRESENTACAO CONF LC 04/90 - ART. 59" E NÃO TEM "SUBSIDIO" código 1
+        tem_representacao = any(
+            'REPRESENTACAO CONF LC 04/90' in evento.get('descricao', '').upper() or 'ART. 59' in evento.get('descricao', '').upper()
+            for evento in dados.get('proventos', []) + dados.get('eventos_informativos', [])
+        )
+        tem_subsidio_1 = any(
+            evento.get('codigo') == '1' and 'SUBSID' in evento.get('descricao', '').upper()
+            for evento in dados.get('proventos', [])
+        )
+        eh_cedido = tem_representacao and not tem_subsidio_1
+        
+        # Se é servidor cedido, adicionar à lista
+        if eh_cedido:
+            servidores_cedidos.append({
+                'nome': dados.get('nome', 'N/A'),
+                'cpf': dados.get('cpf', 'N/A'),
+                'situacao': dados.get('situacao', 'N/A')
+            })
+        
+        # DETECÇÃO DE CASOS ATÍPICOS (múltiplos critérios)
+        motivo_atipico = None
+        
+        # Critério 1: Margem negativa/zero E não é rescisão E não é cedido
+        if margem_consignavel <= 0 and not tem_rescisao and not eh_cedido:
+            motivo_atipico = 'Margem negativa ou zero'
+        
+        # Critério 2: Proventos zerados mas com descontos
+        elif dados.get('total_proventos', 0) == 0 and dados.get('total_descontos', 0) > 0 and not tem_rescisao and not eh_cedido:
+            motivo_atipico = 'Proventos zerados mas com descontos'
+        
+        # Critério 3: Diferença entre RLM e Líquido quando NÃO há descontos facultativos
+        elif descontos_extras == 0 and not tem_rescisao and not eh_cedido:
+            liquido_final = dados.get('liquido', 0)
+            diferenca = abs(margem_consignavel - liquido_final)
+            # Tolerância de R$ 0.10 para arredondamento
+            if diferenca > 0.10:
+                motivo_atipico = f'Diferença entre RLM e Líquido: R$ {diferenca:.2f}'
+        
+        # Adicionar aos casos atípicos se algum critério foi atendido
+        if motivo_atipico:
+            casos_atipicos.append({
+                'nome': dados.get('nome', 'N/A'),
+                'cpf': dados.get('cpf', 'N/A'),
+                'situacao': dados.get('situacao', 'N/A'),
+                'margem': margem_consignavel,
+                'motivo': motivo_atipico
+            })
+        
+        # Se tem rescisão, adicionar à lista de rescisões
+        if tem_rescisao:
+            beneficiarios_rescisao.append({
+                'nome': dados.get('nome', 'N/A'),
+                'cpf': dados.get('cpf', 'N/A'),
+                'tem_desconto_facultativo': 'Sim' if descontos_extras > 0 else 'Não'
+            })
+        
         if descontos_extras == 0:
             sem_descontos += 1
         elif margem_consignavel > 0:
             # Calcular o limite ideal (35% da margem consignável)
+            # Base legal: Resolução Administrativa nº 14/2025, Art. 5º
             limite_ideal = margem_consignavel * 0.35
             
-            # Percentual sobre o limite ideal (35%)
+            # Percentual sobre o limite ideal de 35%
             # Exemplo: Se limite = 580,69 e descontos = 2.884,42, então 2.884,42 / 580,69 = 497%
             percentual = (descontos_extras / limite_ideal) * 100 if limite_ideal > 0 else 0
             
-            # Classificar baseado no percentual simples sobre margem para as categorias
-            percentual_simples = (descontos_extras / margem_consignavel) * 100
+            # Classificar baseado no percentual sobre o limite ideal (35%)
+            # Thresholds alinhados com a capacidade de endividamento consignado:
+            # - < 57% do limite = < 20% da margem (SAUDÁVEL)
+            # - 57-86% do limite = 20-30% da margem (ATENÇÃO)
+            # - 86-100% do limite = 30-35% da margem (RISCO)
+            # - > 100% do limite = > 35% da margem (CRÍTICO - acima do limite legal)
             
-            if percentual_simples < 20:
+            if percentual < 57:
                 saudavel += 1
-            elif percentual_simples < 30:
+            elif percentual < 86:
                 atencao += 1
-            elif percentual_simples < 35:
+            elif percentual <= 100:
                 risco += 1
             else:
                 critico += 1
             
             # Adicionar à lista de beneficiários críticos quando ultrapassar 100% do limite (descontos > 35% da margem)
             if percentual > 100:
-                # Verificar se há evento de rescisão
-                tem_rescisao = any(
-                    '13º SALÁRIO FIXO RESCISÃO' in evento.get('descricao', '').upper()
-                    for evento in dados.get('proventos', [])
-                )
-                
                 beneficiarios_criticos.append({
                     'nome': dados.get('nome', 'N/A'),
                     'cpf': dados.get('cpf', 'N/A'),
@@ -1131,24 +1149,24 @@ def gerar_html_relatorio(dados_folhas):
     html += f"""
                     <div class="grid-stats">
                         <div style="background: #d4edda; border-left: 4px solid #28a745; padding: 20px; border-radius: 8px;">
-                            <div style="font-size: 14px; color: #155724; margin-bottom: 5px;">✅ Situação Saudável</div>
+                            <div style="font-size: 14px; color: #155724; margin-bottom: 5px;">✅ Saudável</div>
                             <div style="font-size: 28px; font-weight: bold; color: #28a745;">{saudavel + sem_descontos}</div>
-                            <small style="color: #666;">Sem descontos extras ou < 20% da margem consignável</small>
+                            <small style="color: #666;">Sem descontos extras ou < 57% do limite (< 20% da margem)</small>
                         </div>
                         <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 20px; border-radius: 8px;">
                             <div style="font-size: 14px; color: #856404; margin-bottom: 5px;">⚠️ Atenção</div>
                             <div style="font-size: 28px; font-weight: bold; color: #ffc107;">{atencao}</div>
-                            <small style="color: #666;">20-30% da margem consignável comprometida</small>
+                            <small style="color: #666;">57-86% do limite (20-30% da margem consignável)</small>
                         </div>
-                        <div style="background: #f8d7da; border-left: 4px solid #dc3545; padding: 20px; border-radius: 8px;">
-                            <div style="font-size: 14px; color: #721c24; margin-bottom: 5px;">🔴 Risco</div>
-                            <div style="font-size: 28px; font-weight: bold; color: #dc3545;">{risco}</div>
-                            <small style="color: #666;">30-35% da margem consignável - Atenção necessária</small>
+                        <div style="background: #ffe5d0; border-left: 4px solid #ff9800; padding: 20px; border-radius: 8px;">
+                            <div style="font-size: 14px; color: #e65100; margin-bottom: 5px;">⚠️ Risco</div>
+                            <div style="font-size: 28px; font-weight: bold; color: #ff9800;">{risco}</div>
+                            <small style="color: #666;">86-100% do limite (30-35% da margem) - Próximo do limite legal</small>
                         </div>
                         <div style="background: #f5c6cb; border-left: 4px solid #a71d2a; padding: 20px; border-radius: 8px;">
                             <div style="font-size: 14px; color: #491217; margin-bottom: 5px;">🚨 Crítico</div>
                             <div style="font-size: 28px; font-weight: bold; color: #a71d2a;">{critico}</div>
-                            <small style="color: #666;">> 35% da margem consignável - Intervenção urgente</small>
+                            <small style="color: #666;">> 100% do limite (> 35% da margem) - ACIMA DO LIMITE LEGAL</small>
                         </div>
                     </div>
 """
@@ -1173,16 +1191,12 @@ def gerar_html_relatorio(dados_folhas):
                                     <th>Limite (35%)</th>
                                     <th>Descontos Facultativos<br><small>(Comprometido)</small></th>
                                     <th>% do Limite</th>
-                                    <th>Rescisão</th>
                                 </tr>
                             </thead>
                             <tbody>
 """
         
         for benef in sorted(beneficiarios_criticos, key=lambda x: x['percentual'], reverse=True):
-            # Criar ID único baseado no CPF para busca
-            cpf_limpo = benef.get('cpf', '').replace('.', '').replace('-', '')
-            rescisao_style = 'color: #a71d2a; font-weight: bold;' if benef.get('rescisao') == 'Sim' else 'color: #2c3e50;'
             html += f"""                                <tr>
                                     <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('{benef.get('cpf', '')}')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de {benef['nome']}">{benef['nome']}</a></strong></td>
                                     <td data-label="Situação">{benef['situacao']}</td>
@@ -1190,7 +1204,6 @@ def gerar_html_relatorio(dados_folhas):
                                     <td data-label="Limite (35%)" style="color: #9b59b6; font-weight: bold;">R$ {formatar_moeda_br(benef['margem_consignavel'] * 0.35)}</td>
                                     <td data-label="Descontos Facultativos" style="color: #e74c3c; font-weight: bold;">R$ {formatar_moeda_br(benef['descontos_extras'])}</td>
                                     <td data-label="% do Limite" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">{benef['percentual']:.1f}%</td>
-                                    <td data-label="Rescisão" style="{rescisao_style} text-align: center; font-weight: bold;">{benef.get('rescisao', 'Não')}</td>
                                 </tr>
 """
         
@@ -1203,6 +1216,141 @@ def gerar_html_relatorio(dados_folhas):
                                 <li>Avaliar a possibilidade de renegociação dos empréstimos consignados</li>
                                 <li>Orientar sobre planejamento financeiro e riscos de endividamento excessivo</li>
                                 <li>Considerar encaminhamento para assistência social ou orientação financeira</li>
+                            </ul>
+                        </div>
+                    </div>
+"""
+    
+    # Se houver beneficiários em rescisão, mostrar tabela detalhada
+    if beneficiarios_rescisao:
+        html += f"""
+                    <div style="background: #e3f2fd; border: 2px solid #2196f3; padding: 20px; border-radius: 10px; margin-top: 25px;">
+                        <h4 style="color: #0d47a1; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 1.5em;">📋</span>
+                            BENEFICIÁRIOS COM RESCISÃO DE TRABALHO NESTA COMPETÊNCIA: {len(beneficiarios_rescisao)} pessoa(s)
+                        </h4>
+                        <p style="color: #1565c0; margin-bottom: 15px; font-size: 0.95em;">
+                            Os seguintes beneficiários apresentam rescisão de contrato de trabalho na competência {competencia_formatada}. Estes não estarão presentes na folha da competência seguinte.
+                        </p>
+                        <table style="font-size: 0.95em;">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th style="text-align: center; width: 180px;">Desconto Facultativo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+"""
+        
+        for benef in sorted(beneficiarios_rescisao, key=lambda x: x['nome']):
+            tem_desconto = benef.get('tem_desconto_facultativo', 'Não')
+            cor_desconto = '#e74c3c' if tem_desconto == 'Sim' else '#27ae60'
+            icone_desconto = '✓' if tem_desconto == 'Sim' else '✗'
+            
+            html += f"""                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('{benef.get('cpf', '')}')" style="color: #2196f3; text-decoration: none; border-bottom: 1px dashed #2196f3; cursor: pointer;" title="Clique para ver detalhes de {benef['nome']}">{benef['nome']}</a></strong></td>
+                                    <td data-label="Desconto Facultativo" style="text-align: center; color: {cor_desconto}; font-weight: bold; font-size: 1.05em;">{icone_desconto} {tem_desconto}</td>
+                                </tr>
+"""
+        
+        html += """                            </tbody>
+                        </table>
+                        <div style="margin-top: 15px; padding: 15px; background: rgba(33, 150, 243, 0.15); border-radius: 6px; border-left: 4px solid #2196f3;">
+                            <strong>ℹ️ INFORMAÇÃO:</strong>
+                            <ul style="margin: 10px 0 0 20px; line-height: 1.8;">
+                                <li>Beneficiários com rescisão não estarão na próxima competência</li>
+                                <li>Descontos facultativos indicados com "Sim" podem requerer atenção para encerramento</li>
+                                <li>Verifique se há necessidade de notificar instituições financeiras sobre o desligamento</li>
+                            </ul>
+                        </div>
+                    </div>
+"""
+    
+    # Se houver servidores cedidos, mostrar tabela detalhada
+    if servidores_cedidos:
+        html += f"""
+                    <div style="background: #fff3e0; border: 2px solid #ff9800; padding: 20px; border-radius: 10px; margin-top: 25px;">
+                        <h4 style="color: #e65100; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 1.5em;">👤</span>
+                            SERVIDORES CEDIDOS: {len(servidores_cedidos)} pessoa(s)
+                        </h4>
+                        <p style="color: #ef6c00; margin-bottom: 15px; font-size: 0.95em;">
+                            Os seguintes servidores são cedidos de outros órgãos (Poder Executivo ou Judiciário) ao Poder Legislativo. 
+                            A margem consignável pode estar baseada em eventos omitidos do cálculo (ex: "REPRESENTACAO CONF LC 04/90 - ART. 59").
+                        </p>
+                        <table style="font-size: 0.95em;">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th style="text-align: center; width: 180px;">Situação</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+"""
+        
+        for servidor in sorted(servidores_cedidos, key=lambda x: x['nome']):
+            html += f"""                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('{servidor.get('cpf', '')}')" style="color: #ff9800; text-decoration: none; border-bottom: 1px dashed #ff9800; cursor: pointer;" title="Clique para ver detalhes de {servidor['nome']}">{servidor['nome']}</a></strong></td>
+                                    <td data-label="Situação" style="text-align: center; color: #e65100; font-weight: 600;">{servidor['situacao']}</td>
+                                </tr>
+"""
+        
+        html += """                            </tbody>
+                        </table>
+                        <div style="margin-top: 15px; padding: 15px; background: rgba(255, 152, 0, 0.15); border-radius: 6px; border-left: 4px solid #ff9800;">
+                            <strong>⚠️ OBSERVAÇÃO:</strong>
+                            <ul style="margin: 10px 0 0 20px; line-height: 1.8;">
+                                <li>Servidores cedidos têm remuneração paga pelo órgão de origem</li>
+                                <li>Eventos de representação/gratificação podem estar omitidos do cálculo da margem</li>
+                                <li>Verifique se há restrições para concessão de empréstimos consignados</li>
+                            </ul>
+                        </div>
+                    </div>
+"""
+    
+    # Se houver casos atípicos, mostrar tabela detalhada
+    if casos_atipicos:
+        html += f"""
+                    <div style="background: #fff9c4; border: 2px solid #fbc02d; padding: 20px; border-radius: 10px; margin-top: 25px;">
+                        <h4 style="color: #f57f17; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 1.5em;">⚡</span>
+                            CASOS ATÍPICOS: {len(casos_atipicos)} pessoa(s)
+                        </h4>
+                        <p style="color: #f9a825; margin-bottom: 15px; font-size: 0.95em;">
+                            Os seguintes beneficiários apresentam situações atípicas que requerem atenção especial, como margem consignável negativa ou zerada, 
+                            valores inconsistentes, ou outras anomalias detectadas automaticamente.
+                        </p>
+                        <table style="font-size: 0.95em;">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th style="text-align: center; width: 180px;">Situação</th>
+                                    <th style="text-align: right; width: 150px;">Margem (RLM)</th>
+                                    <th style="width: 200px;">Motivo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+"""
+        
+        for caso in sorted(casos_atipicos, key=lambda x: x['margem']):
+            cor_margem = '#c62828' if caso['margem'] < 0 else '#f57f17'
+            html += f"""                                <tr>
+                                    <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('{caso.get('cpf', '')}')" style="color: #fbc02d; text-decoration: none; border-bottom: 1px dashed #fbc02d; cursor: pointer;" title="Clique para ver detalhes de {caso['nome']}">{caso['nome']}</a></strong></td>
+                                    <td data-label="Situação" style="text-align: center; color: #f57f17; font-weight: 600;">{caso['situacao']}</td>
+                                    <td data-label="Margem" style="text-align: right; color: {cor_margem}; font-weight: bold;">R$ {formatar_moeda_br(caso['margem'])}</td>
+                                    <td data-label="Motivo" style="color: #666; font-style: italic;">{caso['motivo']}</td>
+                                </tr>
+"""
+        
+        html += """                            </tbody>
+                        </table>
+                        <div style="margin-top: 15px; padding: 15px; background: rgba(251, 192, 45, 0.15); border-radius: 6px; border-left: 4px solid #fbc02d;">
+                            <strong>🔍 ATENÇÃO NECESSÁRIA:</strong>
+                            <ul style="margin: 10px 0 0 20px; line-height: 1.8;">
+                                <li>Verifique individualmente cada caso para entender a causa da inconsistência</li>
+                                <li>Pode incluir: substituições temporárias, comissionados com variação mensal, erros de processamento</li>
+                                <li>Analise o relatório individual completo clicando no nome do beneficiário</li>
+                                <li>Considere ajustes na planilha de classificação se necessário</li>
                             </ul>
                         </div>
                     </div>
@@ -1738,25 +1886,30 @@ def gerar_html_relatorio(dados_folhas):
                                     
                                     let status, cor, icone, alerta;
                                     if (percentualUtilizado === 0) {
-                                        status = 'EXCELENTE';
+                                        status = 'SAUDÁVEL';
                                         cor = '#27ae60';
                                         icone = '✅';
                                         alerta = 'Margem consignável 100% disponível';
-                                    } else if (percentualUtilizado < 57) {  // Menos de 20% da margem
-                                        status = 'BOM';
+                                    } else if (percentualUtilizado < 57) {  // < 57% do limite = < 20% da margem
+                                        status = 'SAUDÁVEL';
                                         cor = '#2ecc71';
                                         icone = '✔️';
                                         alerta = 'Margem consignável saudável, uso consciente';
-                                    } else if (percentualUtilizado < 100) {  // Menos de 35% da margem
+                                    } else if (percentualUtilizado < 86) {  // 57-86% do limite = 20-30% da margem
                                         status = 'ATENÇÃO';
                                         cor = '#f39c12';
                                         icone = '⚠️';
-                                        alerta = 'Próximo do limite de 35% da margem consignável';
-                                    } else {
+                                        alerta = 'Atenção: 20-30% da margem consignável comprometida';
+                                    } else if (percentualUtilizado <= 100) {  // 86-100% do limite = 30-35% da margem
+                                        status = 'RISCO';
+                                        cor = '#ff9800';
+                                        icone = '⚠️';
+                                        alerta = 'Risco: próximo do limite legal de 35%';
+                                    } else {  // > 100% do limite = > 35% da margem
                                         status = 'CRÍTICO';
                                         cor = '#e74c3c';
                                         icone = '🚨';
-                                        alerta = 'ACIMA DO LIMITE LEGAL DE 35%';
+                                        alerta = 'CRÍTICO: ACIMA DO LIMITE LEGAL DE 35% (Resolução Administrativa nº 14/2025)';
                                     }
                                     
                                     return `

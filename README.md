@@ -18,7 +18,8 @@ pip install PyPDF2 pandas openpyxl
 
 1. Coloque o arquivo PDF na pasta `Download_Folha/`
 2. Execute: `python gerar_relatorio.py`
-3. Abra `index.html` no navegador
+3. O script gera automaticamente `index.html`
+4. Abra `index.html` no navegador
 
 ---
 

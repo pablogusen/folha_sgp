@@ -3,9 +3,12 @@
 
 Write-Host "🔄 Sincronizando com GitHub..." -ForegroundColor Cyan
 
-# Copiar o relatório para index.html
-Copy-Item "Relatorio_Folha_Pagamento.html" "index.html" -Force
-Write-Host "✅ Arquivo copiado para index.html" -ForegroundColor Green
+# Verificar se index.html existe
+if (-Not (Test-Path "index.html")) {
+    Write-Host "❌ Arquivo index.html não encontrado! Execute gerar_relatorio.py primeiro." -ForegroundColor Red
+    exit 1
+}
+Write-Host "✅ Arquivo index.html encontrado" -ForegroundColor Green
 
 # Adicionar ao Git
 git add index.html
