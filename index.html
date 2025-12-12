@@ -4147,7 +4147,7 @@
                         <div style="background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); color: white; padding: 30px; border-radius: 15px; margin: 25px 0; box-shadow: 0 8px 20px rgba(0,0,0,0.2);">
                             <h4 style="margin: 0 0 25px 0; font-size: 1.3em; display: flex; align-items: center; gap: 10px;">
                                 <span style="font-size: 1.3em;">🧮</span>
-                                <span>CÁLCULO DO VALOR LÍQUIDO</span>
+                                <span>EXTRATO DA MARGEM</span>
                             </h4>
                             <div style="display: grid; gap: 15px; font-size: 1.05em;">
                                 <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(46, 204, 113, 0.15); border-radius: 8px; border-left: 4px solid #2ecc71;">
@@ -4158,7 +4158,7 @@
                                     </div>
                                 </div>
                                 <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(255, 152, 0, 0.15); border-radius: 8px; border-left: 4px solid #ff9800;">
-                                    <span>⚖️ Descontos Obrigatórios:</span>
+                                    <span>⚠️ Descontos Compulsórios (Obrigatórios):</span>
                                     <div style="text-align: right;">
                                         <div style="font-weight: bold; color: #ff9800;">- R$ ${(beneficiario.total_descontos_obrigatorios || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
                                         <div style="font-size: 0.85em; opacity: 0.8; color: #ff9800;">(${beneficiario.total_proventos > 0 ? ((beneficiario.total_descontos_obrigatorios || 0) / beneficiario.total_proventos * 100).toFixed(1) : 0}% dos proventos)</div>
@@ -4166,38 +4166,19 @@
                                 </div>
                                 <div style="height: 1px; background: rgba(255,255,255,0.2); margin: 5px 20px;"></div>
                                 <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(255,255,255,0.1); border-radius: 8px; font-style: italic;">
-                                    <span>= Valor Pós-Descontos Obrigatórios:</span>
+                                    <span>RLM (Base Margem):</span>
                                     <div style="text-align: right;">
                                         <div style="font-weight: bold; color: #3498db;">R$ ${(beneficiario.total_proventos - (beneficiario.total_descontos_obrigatorios || 0)).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
                                         <div style="font-size: 0.85em; opacity: 0.8; color: #3498db;">(${beneficiario.total_proventos > 0 ? ((beneficiario.total_proventos - (beneficiario.total_descontos_obrigatorios || 0)) / beneficiario.total_proventos * 100).toFixed(1) : 0}% dos proventos)</div>
                                     </div>
                                 </div>
                                 <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(231, 76, 60, 0.15); border-radius: 8px; border-left: 4px solid #e74c3c;">
-                                    <span>💳 Descontos Extras:</span>
+                                    <span>💳 Descontos Facultativos:</span>
                                     <div style="text-align: right;">
                                         <div style="font-weight: bold; color: #e74c3c;">- R$ ${(beneficiario.total_descontos_extras || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
-                                        <div style="font-size: 0.85em; opacity: 0.8; color: #e74c3c;">(${(beneficiario.total_proventos - (beneficiario.total_descontos_obrigatorios || 0)) > 0 ? ((beneficiario.total_descontos_extras || 0) / (beneficiario.total_proventos - (beneficiario.total_descontos_obrigatorios || 0)) * 100).toFixed(1) : 0}% pós-obrigatórios)</div>
+                                        <div style="font-size: 0.85em; opacity: 0.8; color: #e74c3c;">(${(beneficiario.total_proventos - (beneficiario.total_descontos_obrigatorios || 0)) > 0 ? ((beneficiario.total_descontos_extras || 0) / (beneficiario.total_proventos - (beneficiario.total_descontos_obrigatorios || 0)) * 100).toFixed(1) : 0}% da RLM)</div>
                                     </div>
                                 </div>
-                                <div style="height: 2px; background: rgba(255,255,255,0.4); margin: 15px 0;"></div>
-                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 18px; background: rgba(241, 196, 15, 0.2); border-radius: 10px; font-size: 1.25em; border: 2px solid #f1c40f;">
-                                    <span style="font-weight: bold;">💵 VALOR LÍQUIDO A RECEBER:</span>
-                                    <div style="text-align: right;">
-                                        <div style="font-weight: bold; color: #f1c40f; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">R$ ${beneficiario.liquido.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
-                                        <div style="font-size: 0.75em; opacity: 0.9; color: #f1c40f; margin-top: 5px;">(${beneficiario.total_proventos > 0 ? (beneficiario.liquido / beneficiario.total_proventos * 100).toFixed(1) : 0}% dos proventos)</div>
-                                    </div>
-                                </div>
-                                
-                                ${beneficiario.eventos_informativos && beneficiario.eventos_informativos.length > 0 ? `
-                                <div style="background: rgba(33, 150, 243, 0.1); padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 3px solid #2196f3;">
-                                    <p style="margin: 0; color: rgba(255,255,255,0.95); font-size: 0.9em; line-height: 1.6;">
-                                        ℹ️ <strong>Nota:</strong> O valor líquido acima é extraído diretamente do holerite e 
-                                        já considera todos os eventos, incluindo os informativos listados anteriormente. 
-                                        Para o cálculo da <strong>margem consignável</strong>, utilizamos apenas os valores 
-                                        classificados como proventos e descontos regulares.
-                                    </p>
-                                </div>
-                                ` : ''}
                                 
                                 ${(() => {
                                     const proventos = beneficiario.total_proventos;
@@ -4205,7 +4186,8 @@
                                     const descontosExtras = beneficiario.total_descontos_extras || 0;
                                     
                                     const baseCalculo = proventos - descontosObrig;
-                                    const percentualUtilizado = baseCalculo > 0 ? (descontosExtras / baseCalculo * 100) : 0;
+                                    const limiteIdeal = baseCalculo * 0.35;
+                                    const percentualUtilizado = limiteIdeal > 0 ? (descontosExtras / limiteIdeal * 100) : 0;
                                     
                                     let status, cor, icone, alerta;
                                     if (percentualUtilizado === 0) {
@@ -4213,12 +4195,12 @@
                                         cor = '#27ae60';
                                         icone = '✅';
                                         alerta = 'Margem consignável 100% disponível';
-                                    } else if (percentualUtilizado < 20) {
+                                    } else if (percentualUtilizado < 57) {  // Menos de 20% da margem
                                         status = 'BOM';
                                         cor = '#2ecc71';
                                         icone = '✔️';
                                         alerta = 'Margem consignável saudável, uso consciente';
-                                    } else if (percentualUtilizado < 35) {
+                                    } else if (percentualUtilizado < 100) {  // Menos de 35% da margem
                                         status = 'ATENÇÃO';
                                         cor = '#f39c12';
                                         icone = '⚠️';
