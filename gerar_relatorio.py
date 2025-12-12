@@ -1070,10 +1070,10 @@ def gerar_html_relatorio(dados_folhas):
 """
     
     # Análise de saúde financeira - baseada na REMUNERAÇÃO LÍQUIDA
-    saudavel = 0  # Descontos extras < 20% da remuneração líquida
-    atencao = 0   # Descontos extras entre 20-30% da remuneração líquida
-    risco = 0     # Descontos extras entre 30-35% da remuneração líquida
-    critico = 0   # Descontos extras > 35% da remuneração líquida
+    saudavel = 0  # Descontos facultativos < 20% da remuneração líquida
+    atencao = 0   # Descontos facultativos entre 20-30% da remuneração líquida
+    risco = 0     # Descontos facultativos entre 30-35% da remuneração líquida
+    critico = 0   # Descontos facultativos > 35% da remuneração líquida
     sem_descontos = 0
     
     beneficiarios_criticos = []  # Lista para armazenar beneficiários em situação crítica (>35%)
@@ -1082,30 +1082,38 @@ def gerar_html_relatorio(dados_folhas):
         descontos_extras = dados.get('total_descontos_extras', 0)
         liquido_final = dados.get('liquido', 0)
         
+        # Calcular margem consignável (base de cálculo para empréstimos)
+        margem_consignavel = dados.get('total_proventos', 0) - dados.get('total_descontos_obrigatorios', 0)
+        
         if descontos_extras == 0:
             sem_descontos += 1
-        elif liquido_final > 0:
-            # Base de cálculo: Líquido Final (o que o servidor efetivamente recebe)
-            percentual = (descontos_extras / liquido_final) * 100
+        elif margem_consignavel > 0:
+            # Calcular o limite ideal (35% da margem consignável)
+            limite_ideal = margem_consignavel * 0.35
             
-            if percentual < 20:
+            # Percentual sobre o limite ideal (35%)
+            # Exemplo: Se limite = 580,69 e descontos = 2.884,42, então 2.884,42 / 580,69 = 497%
+            percentual = (descontos_extras / limite_ideal) * 100 if limite_ideal > 0 else 0
+            
+            # Classificar baseado no percentual simples sobre margem para as categorias
+            percentual_simples = (descontos_extras / margem_consignavel) * 100
+            
+            if percentual_simples < 20:
                 saudavel += 1
-            elif percentual < 30:
+            elif percentual_simples < 30:
                 atencao += 1
-            elif percentual < 35:
+            elif percentual_simples < 35:
                 risco += 1
             else:
                 critico += 1
-                # Adicionar à lista de beneficiários críticos (somente >35%)
-                
+            
+            # Adicionar à lista de beneficiários críticos quando ultrapassar 100% do limite (descontos > 35% da margem)
+            if percentual > 100:
                 # Verificar se há evento de rescisão
                 tem_rescisao = any(
                     '13º SALÁRIO FIXO RESCISÃO' in evento.get('descricao', '').upper()
                     for evento in dados.get('proventos', [])
                 )
-                
-                # Calcular margem consignável (base de cálculo para empréstimos)
-                margem_consignavel = dados.get('total_proventos', 0) - dados.get('total_descontos_obrigatorios', 0)
                 
                 beneficiarios_criticos.append({
                     'nome': dados.get('nome', 'N/A'),
@@ -1117,7 +1125,6 @@ def gerar_html_relatorio(dados_folhas):
                     'liquido_final': liquido_final,
                     'descontos_extras': descontos_extras,
                     'percentual': percentual,
-                    'percentual_sobre_margem': (descontos_extras / margem_consignavel * 100) if margem_consignavel > 0 else 0,
                     'rescisao': 'Sim' if tem_rescisao else 'Não'
                 })
     
@@ -1126,22 +1133,22 @@ def gerar_html_relatorio(dados_folhas):
                         <div style="background: #d4edda; border-left: 4px solid #28a745; padding: 20px; border-radius: 8px;">
                             <div style="font-size: 14px; color: #155724; margin-bottom: 5px;">✅ Situação Saudável</div>
                             <div style="font-size: 28px; font-weight: bold; color: #28a745;">{saudavel + sem_descontos}</div>
-                            <small style="color: #666;">Sem descontos extras ou < 20% da remuneração líquida</small>
+                            <small style="color: #666;">Sem descontos extras ou < 20% da margem consignável</small>
                         </div>
                         <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 20px; border-radius: 8px;">
                             <div style="font-size: 14px; color: #856404; margin-bottom: 5px;">⚠️ Atenção</div>
                             <div style="font-size: 28px; font-weight: bold; color: #ffc107;">{atencao}</div>
-                            <small style="color: #666;">20-30% da remuneração líquida comprometida</small>
+                            <small style="color: #666;">20-30% da margem consignável comprometida</small>
                         </div>
                         <div style="background: #f8d7da; border-left: 4px solid #dc3545; padding: 20px; border-radius: 8px;">
                             <div style="font-size: 14px; color: #721c24; margin-bottom: 5px;">🔴 Risco</div>
                             <div style="font-size: 28px; font-weight: bold; color: #dc3545;">{risco}</div>
-                            <small style="color: #666;">30-35% da remuneração líquida - Atenção necessária</small>
+                            <small style="color: #666;">30-35% da margem consignável - Atenção necessária</small>
                         </div>
                         <div style="background: #f5c6cb; border-left: 4px solid #a71d2a; padding: 20px; border-radius: 8px;">
                             <div style="font-size: 14px; color: #491217; margin-bottom: 5px;">🚨 Crítico</div>
                             <div style="font-size: 28px; font-weight: bold; color: #a71d2a;">{critico}</div>
-                            <small style="color: #666;">> 35% da remuneração líquida - Intervenção urgente</small>
+                            <small style="color: #666;">> 35% da margem consignável - Intervenção urgente</small>
                         </div>
                     </div>
 """
@@ -1155,38 +1162,34 @@ def gerar_html_relatorio(dados_folhas):
                             BENEFICIÁRIOS EM SITUAÇÃO CRÍTICA: {len(beneficiarios_criticos)} pessoa(s)
                         </h4>
                         <p style="color: #721c24; margin-bottom: 15px; font-size: 0.95em;">
-                            Os seguintes beneficiários estão comprometendo mais de 35% da sua remuneração líquida com descontos facultativos:
+                            Os seguintes beneficiários ultrapassaram o limite ideal de 35% da margem consignável (RLM). O percentual mostra quanto do limite permitido está sendo utilizado:
                         </p>
                         <table style="font-size: 0.95em;">
                             <thead>
                                 <tr>
                                     <th>Nome</th>
                                     <th>Situação</th>
-                                    <th>Proventos Brutos</th>
-                                    <th>Descontos Obrigatórios</th>
-                                    <th>Margem Consignável<br><small>(Base de Cálculo)</small></th>
-                                    <th>Descontos Extras<br><small>(Comprometido)</small></th>
-                                    <th>% sobre Margem</th>
-                                    <th>Líquido Final</th>
+                                    <th>Base Margem</th>
+                                    <th>Limite (35%)</th>
+                                    <th>Descontos Facultativos<br><small>(Comprometido)</small></th>
+                                    <th>% do Limite</th>
                                     <th>Rescisão</th>
                                 </tr>
                             </thead>
                             <tbody>
 """
         
-        for benef in sorted(beneficiarios_criticos, key=lambda x: x['percentual_sobre_margem'], reverse=True):
+        for benef in sorted(beneficiarios_criticos, key=lambda x: x['percentual'], reverse=True):
             # Criar ID único baseado no CPF para busca
             cpf_limpo = benef.get('cpf', '').replace('.', '').replace('-', '')
             rescisao_style = 'color: #a71d2a; font-weight: bold;' if benef.get('rescisao') == 'Sim' else 'color: #2c3e50;'
             html += f"""                                <tr>
                                     <td data-label="Nome"><strong><a href="javascript:void(0);" onclick="abrirBeneficiario('{benef.get('cpf', '')}')" style="color: #a71d2a; text-decoration: none; border-bottom: 1px dashed #a71d2a; cursor: pointer;" title="Clique para ver detalhes de {benef['nome']}">{benef['nome']}</a></strong></td>
                                     <td data-label="Situação">{benef['situacao']}</td>
-                                    <td data-label="Proventos Brutos" style="color: #27ae60; font-weight: bold;">R$ {formatar_moeda_br(benef['total_proventos'])}</td>
-                                    <td data-label="Descontos Obrigatórios" style="color: #ff9800;">R$ {formatar_moeda_br(benef['total_descontos_obrigatorios'])}</td>
-                                    <td data-label="Margem Consignável" style="color: #3498db; font-weight: bold;">R$ {formatar_moeda_br(benef['margem_consignavel'])}</td>
-                                    <td data-label="Descontos Extras" style="color: #e74c3c; font-weight: bold;">R$ {formatar_moeda_br(benef['descontos_extras'])}</td>
-                                    <td data-label="% sobre Margem" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">{benef['percentual_sobre_margem']:.1f}%</td>
-                                    <td data-label="Líquido Final" style="color: #2c3e50; font-weight: bold;">R$ {formatar_moeda_br(benef['liquido_final'])}</td>
+                                    <td data-label="Base Margem" style="color: #3498db; font-weight: bold;">R$ {formatar_moeda_br(benef['margem_consignavel'])}</td>
+                                    <td data-label="Limite (35%)" style="color: #9b59b6; font-weight: bold;">R$ {formatar_moeda_br(benef['margem_consignavel'] * 0.35)}</td>
+                                    <td data-label="Descontos Facultativos" style="color: #e74c3c; font-weight: bold;">R$ {formatar_moeda_br(benef['descontos_extras'])}</td>
+                                    <td data-label="% do Limite" style="color: #a71d2a; font-weight: bold; font-size: 1.1em;">{benef['percentual']:.1f}%</td>
                                     <td data-label="Rescisão" style="{rescisao_style} text-align: center; font-weight: bold;">{benef.get('rescisao', 'Não')}</td>
                                 </tr>
 """
@@ -1461,6 +1464,10 @@ def gerar_html_relatorio(dados_folhas):
                             <div class="label">Situação</div>
                             <div class="valor" style="font-size: 1em;">${beneficiario.situacao}</div>
                         </div>
+                        <div class="stat-box">
+                            <div class="label">Cargo</div>
+                            <div class="valor" style="font-size: 1em;">${beneficiario.cargo || 'Não informado'}</div>
+                        </div>
             `;
             
             // Verificar se há evento de rescisão
@@ -1528,8 +1535,8 @@ def gerar_html_relatorio(dados_folhas):
                         
                         <div style="background: linear-gradient(135deg, #fff3e0 0%, #fef8f0 100%); padding: 25px; border-radius: 12px; margin: 25px 0; border-left: 5px solid #ff9800;">
                             <h4 style="color: #ff9800; margin: 0 0 20px 0; display: flex; align-items: center; gap: 10px;">
-                                <span style="font-size: 1.5em;">⚖️</span>
-                                <span>DESCONTOS OBRIGATÓRIOS (Saídas)</span>
+                                <span style="font-size: 1.5em;">⚠️</span>
+                                <span>DESCONTOS COMPULSÓRIOS (OBRIGATÓRIOS) - Saídas</span>
                             </h4>
                             <p style="color: #666; font-size: 0.95em; margin-bottom: 15px;">Descontos exigidos por lei (Previdência, Imposto de Renda, etc.)</p>
                             <table style="background: white;">
@@ -1574,7 +1581,7 @@ def gerar_html_relatorio(dados_folhas):
                 
                 html += `
                                 <tr style="background: linear-gradient(135deg, #ff9800 0%, #ffb74d 100%); color: white; font-weight: bold; font-size: 1.1em;">
-                                    <td style="padding: 15px;">TOTAL DESCONTOS OBRIGATÓRIOS</td>
+                                    <td style="padding: 15px;">TOTAL DESCONTOS COMPULSÓRIOS</td>
                                     <td style="text-align: right; padding: 15px;">R$ ${(beneficiario.total_descontos_obrigatorios || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
                                     <td style="text-align: right; padding: 15px;">100%</td>
                                     <td style="text-align: center; padding: 15px;">⚖️</td>
@@ -1585,8 +1592,8 @@ def gerar_html_relatorio(dados_folhas):
                         
                         <div style="background: linear-gradient(135deg, #ffebee 0%, #fef5f6 100%); padding: 25px; border-radius: 12px; margin: 25px 0; border-left: 5px solid #e74c3c;">
                             <h4 style="color: #e74c3c; margin: 0 0 20px 0; display: flex; align-items: center; gap: 10px;">
-                                <span style="font-size: 1.5em;">�</span>
-                                <span>DESCONTOS EXTRAS (Saídas)</span>
+                                <span style="font-size: 1.5em;">💳</span>
+                                <span>DESCONTOS FACULTATIVOS - Saídas</span>
                             </h4>
                             <p style="color: #666; font-size: 0.95em; margin-bottom: 15px;">Descontos opcionais (Empréstimos, Consignados, Planos de Saúde, etc.)</p>
                             <table style="background: white;">
@@ -1631,7 +1638,7 @@ def gerar_html_relatorio(dados_folhas):
                 
                 html += `
                                 <tr style="background: linear-gradient(135deg, #e74c3c 0%, #e67e73 100%); color: white; font-weight: bold; font-size: 1.1em;">
-                                    <td style="padding: 15px;">TOTAL DESCONTOS EXTRAS</td>
+                                    <td style="padding: 15px;">TOTAL DESCONTOS FACULTATIVOS</td>
                                     <td style="text-align: right; padding: 15px;">R$ ${(beneficiario.total_descontos_extras || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
                                     <td style="text-align: right; padding: 15px;">100%</td>
                                     <td style="text-align: center; padding: 15px;">💳</td>
@@ -1687,7 +1694,7 @@ def gerar_html_relatorio(dados_folhas):
                         <div style="background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); color: white; padding: 30px; border-radius: 15px; margin: 25px 0; box-shadow: 0 8px 20px rgba(0,0,0,0.2);">
                             <h4 style="margin: 0 0 25px 0; font-size: 1.3em; display: flex; align-items: center; gap: 10px;">
                                 <span style="font-size: 1.3em;">🧮</span>
-                                <span>CÁLCULO DO VALOR LÍQUIDO</span>
+                                <span>EXTRATO DA MARGEM</span>
                             </h4>
                             <div style="display: grid; gap: 15px; font-size: 1.05em;">
                                 <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(46, 204, 113, 0.15); border-radius: 8px; border-left: 4px solid #2ecc71;">
@@ -1698,7 +1705,7 @@ def gerar_html_relatorio(dados_folhas):
                                     </div>
                                 </div>
                                 <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(255, 152, 0, 0.15); border-radius: 8px; border-left: 4px solid #ff9800;">
-                                    <span>⚖️ Descontos Obrigatórios:</span>
+                                    <span>⚠️ Descontos Compulsórios (Obrigatórios):</span>
                                     <div style="text-align: right;">
                                         <div style="font-weight: bold; color: #ff9800;">- R$ ${(beneficiario.total_descontos_obrigatorios || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
                                         <div style="font-size: 0.85em; opacity: 0.8; color: #ff9800;">(${beneficiario.total_proventos > 0 ? ((beneficiario.total_descontos_obrigatorios || 0) / beneficiario.total_proventos * 100).toFixed(1) : 0}% dos proventos)</div>
@@ -1706,38 +1713,19 @@ def gerar_html_relatorio(dados_folhas):
                                 </div>
                                 <div style="height: 1px; background: rgba(255,255,255,0.2); margin: 5px 20px;"></div>
                                 <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(255,255,255,0.1); border-radius: 8px; font-style: italic;">
-                                    <span>= Valor Pós-Descontos Obrigatórios:</span>
+                                    <span>RLM (Base Margem):</span>
                                     <div style="text-align: right;">
                                         <div style="font-weight: bold; color: #3498db;">R$ ${(beneficiario.total_proventos - (beneficiario.total_descontos_obrigatorios || 0)).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
                                         <div style="font-size: 0.85em; opacity: 0.8; color: #3498db;">(${beneficiario.total_proventos > 0 ? ((beneficiario.total_proventos - (beneficiario.total_descontos_obrigatorios || 0)) / beneficiario.total_proventos * 100).toFixed(1) : 0}% dos proventos)</div>
                                     </div>
                                 </div>
                                 <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(231, 76, 60, 0.15); border-radius: 8px; border-left: 4px solid #e74c3c;">
-                                    <span>💳 Descontos Extras:</span>
+                                    <span>💳 Descontos Facultativos:</span>
                                     <div style="text-align: right;">
                                         <div style="font-weight: bold; color: #e74c3c;">- R$ ${(beneficiario.total_descontos_extras || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
-                                        <div style="font-size: 0.85em; opacity: 0.8; color: #e74c3c;">(${(beneficiario.total_proventos - (beneficiario.total_descontos_obrigatorios || 0)) > 0 ? ((beneficiario.total_descontos_extras || 0) / (beneficiario.total_proventos - (beneficiario.total_descontos_obrigatorios || 0)) * 100).toFixed(1) : 0}% pós-obrigatórios)</div>
+                                        <div style="font-size: 0.85em; opacity: 0.8; color: #e74c3c;">(${(beneficiario.total_proventos - (beneficiario.total_descontos_obrigatorios || 0)) > 0 ? ((beneficiario.total_descontos_extras || 0) / (beneficiario.total_proventos - (beneficiario.total_descontos_obrigatorios || 0)) * 100).toFixed(1) : 0}% da RLM)</div>
                                     </div>
                                 </div>
-                                <div style="height: 2px; background: rgba(255,255,255,0.4); margin: 15px 0;"></div>
-                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 18px; background: rgba(241, 196, 15, 0.2); border-radius: 10px; font-size: 1.25em; border: 2px solid #f1c40f;">
-                                    <span style="font-weight: bold;">💵 VALOR LÍQUIDO A RECEBER:</span>
-                                    <div style="text-align: right;">
-                                        <div style="font-weight: bold; color: #f1c40f; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">R$ ${beneficiario.liquido.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
-                                        <div style="font-size: 0.75em; opacity: 0.9; color: #f1c40f; margin-top: 5px;">(${beneficiario.total_proventos > 0 ? (beneficiario.liquido / beneficiario.total_proventos * 100).toFixed(1) : 0}% dos proventos)</div>
-                                    </div>
-                                </div>
-                                
-                                ${beneficiario.eventos_informativos && beneficiario.eventos_informativos.length > 0 ? `
-                                <div style="background: rgba(33, 150, 243, 0.1); padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 3px solid #2196f3;">
-                                    <p style="margin: 0; color: rgba(255,255,255,0.95); font-size: 0.9em; line-height: 1.6;">
-                                        ℹ️ <strong>Nota:</strong> O valor líquido acima é extraído diretamente do holerite e 
-                                        já considera todos os eventos, incluindo os informativos listados anteriormente. 
-                                        Para o cálculo da <strong>margem consignável</strong>, utilizamos apenas os valores 
-                                        classificados como proventos e descontos regulares.
-                                    </p>
-                                </div>
-                                ` : ''}
                                 
                                 ${(() => {
                                     const proventos = beneficiario.total_proventos;
@@ -1745,7 +1733,8 @@ def gerar_html_relatorio(dados_folhas):
                                     const descontosExtras = beneficiario.total_descontos_extras || 0;
                                     
                                     const baseCalculo = proventos - descontosObrig;
-                                    const percentualUtilizado = baseCalculo > 0 ? (descontosExtras / baseCalculo * 100) : 0;
+                                    const limiteIdeal = baseCalculo * 0.35;
+                                    const percentualUtilizado = limiteIdeal > 0 ? (descontosExtras / limiteIdeal * 100) : 0;
                                     
                                     let status, cor, icone, alerta;
                                     if (percentualUtilizado === 0) {
@@ -1753,12 +1742,12 @@ def gerar_html_relatorio(dados_folhas):
                                         cor = '#27ae60';
                                         icone = '✅';
                                         alerta = 'Margem consignável 100% disponível';
-                                    } else if (percentualUtilizado < 20) {
+                                    } else if (percentualUtilizado < 57) {  // Menos de 20% da margem
                                         status = 'BOM';
                                         cor = '#2ecc71';
                                         icone = '✔️';
                                         alerta = 'Margem consignável saudável, uso consciente';
-                                    } else if (percentualUtilizado < 35) {
+                                    } else if (percentualUtilizado < 100) {  // Menos de 35% da margem
                                         status = 'ATENÇÃO';
                                         cor = '#f39c12';
                                         icone = '⚠️';
@@ -1802,11 +1791,11 @@ def gerar_html_relatorio(dados_folhas):
                 const descontosObrig = beneficiario.total_descontos_obrigatorios || 0;
                 const descontosExtras = beneficiario.total_descontos_extras || 0;
                 const baseCalculo = proventos - descontosObrig;
-                const percentualAtual = baseCalculo > 0 ? (descontosExtras / baseCalculo * 100) : 0;
+                const limiteIdeal = baseCalculo * 0.35;
+                const percentualAtual = limiteIdeal > 0 ? (descontosExtras / limiteIdeal * 100) : 0;
                 
-                // Só mostrar se estiver acima de 35%
-                if (percentualAtual > 35) {
-                    const limiteIdeal = baseCalculo * 0.35;
+                // Só mostrar se estiver acima de 100% (ou seja, descontos extras > limite de 35%)
+                if (percentualAtual > 100) {
                     const valorAReduzir = descontosExtras - limiteIdeal;
                     
                     // Função para obter ordem de eliminação de um desconto
@@ -1945,7 +1934,7 @@ def gerar_html_relatorio(dados_folhas):
                                 <h5 style="color: #e67e22; margin: 0 0 15px 0;">📊 Situação Atual:</h5>
                                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; color: #856404;">
                                     <div>
-                                        <strong>Margem Consignável:</strong> R$ ${baseCalculo.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                                        <strong>RLM (Base Margem):</strong> R$ ${baseCalculo.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                                     </div>
                                     <div>
                                         <strong>Percentual Comprometido:</strong> <span style="color: #e74c3c; font-weight: bold;">${percentualAtual.toFixed(2)}%</span>
@@ -2256,8 +2245,8 @@ print(f"⚠️  Sem dados extraídos: {stats['sem_dados']}/{stats['total']}")
 print(f"❌ Com erros: {stats['com_erro']}/{stats['total']}")
 
 print(f"\n💰 Total de Proventos: R$ {formatar_moeda_br(stats['total_proventos'])}")
-print(f"⚖️  Total Descontos Obrigatórios: R$ {formatar_moeda_br(stats['total_descontos_obrigatorios'])}")
-print(f"💳 Total Descontos Extras: R$ {formatar_moeda_br(stats['total_descontos_extras'])}")
+print(f"⚠️  Total Descontos Compulsórios (Obrigatórios): R$ {formatar_moeda_br(stats['total_descontos_obrigatorios'])}")
+print(f"💳 Total Descontos Facultativos: R$ {formatar_moeda_br(stats['total_descontos_extras'])}")
 print(f"💵 Total Líquido: R$ {formatar_moeda_br(stats['total_liquido'])}")
 
 tempo_decorrido = (datetime.now() - inicio).total_seconds()
