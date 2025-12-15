@@ -22,6 +22,45 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+def detectar_competencias_disponiveis():
+    """Detecta competências disponíveis com holerites"""
+    caminho_base = Path(__file__).parent.parent
+    pasta_competencias = caminho_base / "data" / "competencias"
+    
+    competencias = []
+    for item in pasta_competencias.iterdir():
+        if item.is_dir() and re.match(r'^\d{4}-\d{2}$', item.name):
+            pasta_holerites = item / "holerites"
+            if pasta_holerites.exists():
+                pdfs = list(pasta_holerites.glob('*.pdf'))
+                if pdfs:
+                    competencias.append({
+                        'pasta': item.name,
+                        'caminho': pasta_holerites,
+                        'quantidade_pdfs': len(pdfs)
+                    })
+    
+    return sorted(competencias, key=lambda x: x['pasta'], reverse=True)
+
+def selecionar_competencia():
+    """Permite usuário selecionar competência ou usa mais recente"""
+    competencias = detectar_competencias_disponiveis()
+    
+    if not competencias:
+        logger.error("❌ Nenhuma competência com holerites encontrada!")
+        logger.info("💡 Coloque os PDFs em: data/competencias/AAAA-MM/holerites/")
+        return None
+    
+    logger.info("\n📅 Competências disponíveis:")
+    for i, comp in enumerate(competencias, 1):
+        logger.info(f"   {i}. {comp['pasta']} ({comp['quantidade_pdfs']} holerites)")
+    
+    # Usar mais recente por padrão
+    competencia_selecionada = competencias[0]
+    logger.info(f"\n✅ Usando competência mais recente: {competencia_selecionada['pasta']}")
+    
+    return competencia_selecionada
+
 # Carregar mapeamento de eventos da planilha Descricao_Comp_Rend.xlsx
 def carregar_mapeamento_eventos():
     """
@@ -2305,21 +2344,31 @@ logger.info("="*80)
 logger.info("🚀 SISTEMA DE ANÁLISE DE FOLHAS DE PAGAMENTO")
 logger.info("="*80)
 
+# Selecionar competência
+competencia = selecionar_competencia()
+if not competencia:
+    exit(1)
+
 # Configurações
 caminho_base = Path(__file__).parent.parent
-caminho_pasta = caminho_base / "Download_Folha"
+caminho_pasta = competencia['caminho']
+competencia_nome = competencia['pasta']
+
+# Caminhos de saída para a competência
+pasta_competencia = caminho_base / "data" / "competencias" / competencia_nome
+caminho_output_comp = pasta_competencia / "relatorio.html"
+caminho_backup_comp = pasta_competencia / "resultado.json"
+
+# Caminhos gerais (raiz)
 caminho_output = caminho_base / "output" / "index.html"
+caminho_index_raiz = caminho_base / "index.html"
 caminho_backup = caminho_base / "data" / "backup" / "dados_folhas_backup.json"
 
 # Buscar todos os PDFs
-arquivos_pdf = [f for f in os.listdir(caminho_pasta) if f.endswith('.pdf') and 'Logo' not in f]
+arquivos_pdf = [f.name for f in caminho_pasta.glob('*.pdf') if 'Logo' not in f.name]
 
 logger.info(f"\n📂 Pasta: {caminho_pasta}")
 logger.info(f"📄 Arquivos PDF encontrados: {len(arquivos_pdf)}")
-
-if len(arquivos_pdf) == 0:
-    print("\n⚠️  Nenhum arquivo PDF encontrado na pasta!")
-    exit()
 
 logger.info("\n" + "="*80)
 logger.info("📊 PROCESSANDO FOLHAS DE PAGAMENTO...")
@@ -2330,7 +2379,7 @@ inicio = datetime.now()
 
 # Processar cada PDF
 for arquivo in arquivos_pdf:
-    caminho_completo = os.path.join(caminho_pasta, arquivo)
+    caminho_completo = caminho_pasta / arquivo
     
     # Verificar quantas páginas o PDF tem
     try:
@@ -2505,26 +2554,32 @@ logger.info("="*80 + "\n")
 
 html_final = gerar_html_relatorio(dados_todas_folhas)
 
-# Salvar arquivos na pasta Folha (pasta raiz)
-pasta_raiz = caminho_base
-
-# Salvar arquivo HTML em output/index.html e cópia na raiz
-with open(caminho_output, 'w', encoding='utf-8') as f:
+# Salvar na pasta da competência
+with open(caminho_output_comp, 'w', encoding='utf-8') as f:
     f.write(html_final)
     
-# Cópia na raiz para GitHub Pages
-caminho_index_raiz = caminho_base / "index.html"
+with open(caminho_backup_comp, 'w', encoding='utf-8') as f:
+    json.dump(dados_todas_folhas, f, ensure_ascii=False, indent=2)
+
+logger.info(f"✅ Relatório da competência {competencia_nome} salvo!")
+logger.info(f"📁 HTML: {caminho_output_comp}")
+logger.info(f"📁 JSON: {caminho_backup_comp}")
+
+# Salvar também nas pastas gerais (output/ e raiz)
+with open(caminho_output, 'w', encoding='utf-8') as f:
+    f.write(html_final)
+
 with open(caminho_index_raiz, 'w', encoding='utf-8') as f:
     f.write(html_final)
 
-logger.info(f"✅ Relatório HTML gerado com sucesso!")
-logger.info(f"📁 Arquivo salvo em: {caminho_output}")
-logger.info(f"📁 Cópia para GitHub Pages: {caminho_index_raiz}")
+logger.info(f"\n✅ Relatório geral atualizado!")
+logger.info(f"📁 Output: {caminho_output}")
+logger.info(f"📁 GitHub Pages: {caminho_index_raiz}")
 
-# Salvar dados em JSON para backup/análise futura
+# Backup geral
 with open(caminho_backup, 'w', encoding='utf-8') as f:
     json.dump(dados_todas_folhas, f, ensure_ascii=False, indent=2)
-logger.info(f"💾 Backup dos dados salvo em: {caminho_backup}")
+logger.info(f"💾 Backup geral: {caminho_backup}")
 
 logger.info("\n" + "="*80)
 logger.info("🎉 PROCESSAMENTO CONCLUÍDO COM SUCESSO!")

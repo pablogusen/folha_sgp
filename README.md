@@ -14,18 +14,23 @@ Folha_SGP/
 │   ├── parametros/           # Configurações e parâmetros
 │   │   ├── Descricao_Comp_Rend.xlsx # Classificação eventos
 │   │   └── eventos.db               # Banco SQLite (opcional)
-│   ├── backup/               # Backups JSON
-│   └── competencias/         # Histórico por mês
+│   ├── backup/               # Backups JSON gerais
+│   └── competencias/         # 📅 Histórico por competência
 │       ├── 2025-11/
+│       │   ├── holerites/          # PDFs desta competência
+│       │   ├── resultado.json      # Dados processados
+│       │   └── relatorio.html      # Relatório específico
 │       └── 2025-12/
-├── output/                   # Relatórios gerados
+│           ├── holerites/
+│           ├── resultado.json
+│           └── relatorio.html
+├── output/                   # Relatórios gerais
 │   └── index.html
 ├── docs/                     # Documentação
 │   ├── CONHECIMENTO_BASE.md
 │   └── README.md
 ├── tests/                    # Testes automatizados
 │   └── test_classificacao.py
-├── Download_Folha/           # PDFs para processar
 ├── logs/                     # Logs de execução
 ├── .github/
 │   └── workflows/
@@ -72,11 +77,20 @@ python src/converter_excel_sqlite.py
 
 ### 2. Processar Folha
 ```powershell
-# Colocar PDFs na pasta Download_Folha/
-# Executar processamento
+# Colocar PDFs na pasta data/competencias/AAAA-MM/holerites/
+# Exemplo: data/competencias/2025-12/holerites/*.pdf
+
+# Executar processamento (detecta automaticamente a competência mais recente)
 cd src
 python gerar_relatorio.py
 ```
+
+**O sistema irá:**
+- Detectar automaticamente competências disponíveis
+- Processar a mais recente por padrão
+- Salvar resultado.json e relatorio.html na pasta da competência
+- Atualizar index.html na raiz (para GitHub Pages)
+- Manter backup geral em data/backup/
 
 ### 3. Visualizar Relatório
 - Abrir `output/index.html` no navegador
