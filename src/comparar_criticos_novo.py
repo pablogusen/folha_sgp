@@ -3,6 +3,7 @@ import pandas as pd
 import re
 from unidecode import unidecode
 from collections import Counter
+from pathlib import Path
 
 def normalizar_nome(nome):
     """Normaliza nome removendo acentos, pontos, hífens e espaços extras"""
@@ -21,7 +22,10 @@ print("🔍 COMPARAÇÃO: RELATÓRIO CONSIGNO vs SERVIDORES CRÍTICOS")
 print("="*80)
 
 # 1. Carregar dados do JSON
-with open('dados_folhas_backup.json', 'r', encoding='utf-8') as f:
+caminho_base = Path(__file__).parent.parent
+caminho_json = caminho_base / 'data' / 'backup' / 'dados_folhas_backup.json'
+
+with open(caminho_json, 'r', encoding='utf-8') as f:
     dados_folhas = json.load(f)
 
 # Filtrar os críticos usando o MESMO CRITÉRIO do relatório HTML (181 pessoas)
