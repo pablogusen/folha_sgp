@@ -2565,16 +2565,12 @@ logger.info(f"✅ Relatório da competência {competencia_nome} salvo!")
 logger.info(f"📁 HTML: {caminho_output_comp}")
 logger.info(f"📁 JSON: {caminho_backup_comp}")
 
-# Salvar também nas pastas gerais (output/ e raiz)
+# Salvar também na pasta geral (output/)
 with open(caminho_output, 'w', encoding='utf-8') as f:
-    f.write(html_final)
-
-with open(caminho_index_raiz, 'w', encoding='utf-8') as f:
     f.write(html_final)
 
 logger.info(f"\n✅ Relatório geral atualizado!")
 logger.info(f"📁 Output: {caminho_output}")
-logger.info(f"📁 GitHub Pages: {caminho_index_raiz}")
 
 # Backup geral
 with open(caminho_backup, 'w', encoding='utf-8') as f:
