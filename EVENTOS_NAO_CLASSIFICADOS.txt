@@ -1,0 +1,57 @@
+================================================================================
+⚠️  EVENTOS NÃO CLASSIFICADOS - AÇÃO NECESSÁRIA
+================================================================================
+Data/Hora: 15/12/2025 09:02:36
+Total de eventos não classificados: 6
+================================================================================
+
+📋 INSTRUÇÕES:
+--------------------------------------------------------------------------------
+1. Abra a planilha: Descricao_Comp_Rend.xlsx
+2. Acesse a sheet: 'Composição de Rendimentos'
+3. Adicione cada evento abaixo com sua classificação:
+   - Provento
+   - Desconto Compulsório (obrigatório)
+   - Desconto Facultativo (extra)
+   - Omitir do cálculo
+4. Se for 'Desconto Facultativo', adicione também na sheet 'Ordem de Eliminação'
+   com a prioridade correta (1, 2, 3 ou 4)
+5. Salve a planilha e execute o script novamente
+================================================================================
+
+📊 EVENTOS NÃO CLASSIFICADOS:
+================================================================================
+
+Código: 97
+Descrição: DEVOLUCAO DE DESCONTOS
+Descrição Normalizada: DEVOLUCAO DE DESCONTOS
+--------------------------------------------------------------------------------
+
+Código: 3416
+Descrição: CONSIGNAÇÃO SICREDI - RESCISÃO
+Descrição Normalizada: CONSIGNAÇÃO SICREDI - RESCISÃO
+--------------------------------------------------------------------------------
+
+Código: 3420
+Descrição: CONSIGNAÇÃO BANCOOB - RESCISÃO
+Descrição Normalizada: CONSIGNAÇÃO BANCOOB - RESCISÃO
+--------------------------------------------------------------------------------
+
+Código: 3421
+Descrição: CONSIGNAÇÃO BRADESCO - RESCISÃO
+Descrição Normalizada: CONSIGNAÇÃO BRADESCO - RESCISÃO
+--------------------------------------------------------------------------------
+
+Código: 3426
+Descrição: CONSIGNAÇÃO DAYCOV AL - RESCISÃO
+Descrição Normalizada: CONSIGNAÇÃO DAYCOV AL - RESCISÃO
+--------------------------------------------------------------------------------
+
+Código: 3755
+Descrição: DESCONTO ANTECIPAÇÃO GRATIFICAÇÃO NATALI
+Descrição Normalizada: DESCONTO ANTECIPAÇÃO GRATIFICAÇÃO NATALI
+--------------------------------------------------------------------------------
+
+================================================================================
+💡 DICA: Copie as informações acima e cole na planilha Excel
+================================================================================

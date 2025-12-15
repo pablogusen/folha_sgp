@@ -4498,5 +4498,191 @@
             resultado.innerHTML = html;
         }
     </script>
+    
+    <!-- Chart.js para gráficos interativos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        // Dashboard interativo - Gráficos estatísticos
+        document.addEventListener('DOMContentLoaded', function() {
+            // Adicionar canvas para gráficos nas seções
+            adicionarGraficos();
+        });
+        
+        function adicionarGraficos() {
+            // Gráfico de distribuição por status
+            const secaoGeral = document.querySelector('#geral');
+            if (!secaoGeral) return;
+            
+            const canvasDiv = document.createElement('div');
+            canvasDiv.innerHTML = `
+                <div style="background: white; padding: 30px; border-radius: 10px; margin: 30px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <h3 style="color: #2c3e50; margin-bottom: 20px; text-align: center;">📊 Dashboard Interativo</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px;">
+                        <div>
+                            <canvas id="chartStatus"></canvas>
+                        </div>
+                        <div>
+                            <canvas id="chartValores"></canvas>
+                        </div>
+                    </div>
+                    <div style="margin-top: 30px;">
+                        <canvas id="chartComparativo" style="max-height: 300px;"></canvas>
+                    </div>
+                </div>
+            `;
+            
+            const primeiraTabela = secaoGeral.querySelector('table');
+            if (primeiraTabela) {
+                primeiraTabela.parentNode.insertBefore(canvasDiv, primeiraTabela);
+                
+                // Coletar dados da tabela
+                const dados = coletarDadosTabela();
+                renderizarGraficos(dados);
+            }
+        }
+        
+        function coletarDadosTabela() {
+            const linhas = document.querySelectorAll('#geral table tbody tr');
+            let saudavel = 0, atencao = 0, risco = 0, critico = 0;
+            let totalProventos = 0, totalCompulsorios = 0, totalFacultativos = 0, totalLiquido = 0;
+            
+            linhas.forEach(linha => {
+                const percentual = parseFloat(linha.cells[4]?.textContent || '0');
+                const proventos = parseFloat(linha.cells[5]?.textContent.replace(/[^\d,]/g, '').replace(',', '.') || '0');
+                const compulsorios = parseFloat(linha.cells[6]?.textContent.replace(/[^\d,]/g, '').replace(',', '.') || '0');
+                const facultativos = parseFloat(linha.cells[8]?.textContent.replace(/[^\d,]/g, '').replace(',', '.') || '0');
+                const liquido = parseFloat(linha.cells[10]?.textContent.replace(/[^\d,]/g, '').replace(',', '.') || '0');
+                
+                if (percentual < 57) saudavel++;
+                else if (percentual < 86) atencao++;
+                else if (percentual <= 100) risco++;
+                else critico++;
+                
+                totalProventos += proventos;
+                totalCompulsorios += compulsorios;
+                totalFacultativos += facultativos;
+                totalLiquido += liquido;
+            });
+            
+            return {
+                status: { saudavel, atencao, risco, critico },
+                valores: { totalProventos, totalCompulsorios, totalFacultativos, totalLiquido }
+            };
+        }
+        
+        function renderizarGraficos(dados) {
+            // Gráfico de pizza - Distribuição por Status
+            const ctxStatus = document.getElementById('chartStatus');
+            if (ctxStatus) {
+                new Chart(ctxStatus, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['SAUDÁVEL', 'ATENÇÃO', 'RISCO', 'CRÍTICO'],
+                        datasets: [{
+                            data: [
+                                dados.status.saudavel,
+                                dados.status.atencao,
+                                dados.status.risco,
+                                dados.status.critico
+                            ],
+                            backgroundColor: ['#28a745', '#ffc107', '#ff6b6b', '#dc3545'],
+                            borderWidth: 2,
+                            borderColor: '#fff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { position: 'bottom' },
+                            title: {
+                                display: true,
+                                text: 'Distribuição por Status',
+                                font: { size: 16, weight: 'bold' }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Gráfico de barras - Valores Financeiros
+            const ctxValores = document.getElementById('chartValores');
+            if (ctxValores) {
+                new Chart(ctxValores, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Proventos', 'Compulsórios', 'Facultativos', 'Líquido'],
+                        datasets: [{
+                            label: 'Valores (R$)',
+                            data: [
+                                dados.valores.totalProventos,
+                                dados.valores.totalCompulsorios,
+                                dados.valores.totalFacultativos,
+                                dados.valores.totalLiquido
+                            ],
+                            backgroundColor: ['#4CAF50', '#FF9800', '#2196F3', '#9C27B0'],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { display: false },
+                            title: {
+                                display: true,
+                                text: 'Totalizações Financeiras',
+                                font: { size: 16, weight: 'bold' }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return 'R$ ' + value.toLocaleString('pt-BR');
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Gráfico comparativo - Descontos vs Limite
+            const ctxComp = document.getElementById('chartComparativo');
+            if (ctxComp) {
+                new Chart(ctxComp, {
+                    type: 'line',
+                    data: {
+                        labels: ['SAUDÁVEL (<57%)', 'ATENÇÃO (57-86%)', 'RISCO (86-100%)', 'CRÍTICO (>100%)'],
+                        datasets: [{
+                            label: 'Quantidade de Beneficiários',
+                            data: [
+                                dados.status.saudavel,
+                                dados.status.atencao,
+                                dados.status.risco,
+                                dados.status.critico
+                            ],
+                            borderColor: '#2c3e50',
+                            backgroundColor: 'rgba(44, 62, 80, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: { display: false },
+                            title: {
+                                display: true,
+                                text: 'Distribuição de Beneficiários por Faixa de Risco',
+                                font: { size: 16, weight: 'bold' }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    </script>
 </body>
 </html>

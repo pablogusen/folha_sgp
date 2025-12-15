@@ -2,9 +2,25 @@ import PyPDF2
 import re
 import json
 import os
+import logging
 from datetime import datetime
 from pathlib import Path
 import pandas as pd
+
+# Configurar logging
+log_dir = Path(__file__).parent.parent / "logs"
+log_dir.mkdir(exist_ok=True)
+log_file = log_dir / f"relatorio_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(log_file, encoding='utf-8'),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
 
 # Carregar mapeamento de eventos da planilha Descricao_Comp_Rend.xlsx
 def carregar_mapeamento_eventos():
@@ -13,7 +29,7 @@ def carregar_mapeamento_eventos():
     da planilha Descricao_Comp_Rend.xlsx
     """
     try:
-        caminho_planilha = Path(__file__).parent / 'Descricao_Comp_Rend.xlsx'
+        caminho_planilha = Path(__file__).parent.parent / 'data' / 'parametros' / 'Descricao_Comp_Rend.xlsx'
         df_eventos = pd.read_excel(caminho_planilha, sheet_name='Composição de Rendimentos')
         
         mapeamento = {}
@@ -35,7 +51,7 @@ def carregar_ordem_eliminacao():
     Retorna dicionário: {descricao_normalizada: ordem_numero}
     """
     try:
-        caminho_planilha = Path(__file__).parent / 'Descricao_Comp_Rend.xlsx'
+        caminho_planilha = Path(__file__).parent.parent / 'data' / 'parametros' / 'Descricao_Comp_Rend.xlsx'
         df_ordem = pd.read_excel(caminho_planilha, sheet_name='Ordem de Eliminação')
         
         # Criar dicionário de prioridades
@@ -2285,26 +2301,29 @@ if sys.platform == 'win32':
     import io
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
-print("="*80)
-print("🚀 SISTEMA DE ANÁLISE DE FOLHAS DE PAGAMENTO")
-print("="*80)
+logger.info("="*80)
+logger.info("🚀 SISTEMA DE ANÁLISE DE FOLHAS DE PAGAMENTO")
+logger.info("="*80)
 
 # Configurações
-caminho_pasta = r"c:\Users\41870\Desktop\VSCODE\Folha_SGP\Download_Folha"
+caminho_base = Path(__file__).parent.parent
+caminho_pasta = caminho_base / "Download_Folha"
+caminho_output = caminho_base / "output" / "index.html"
+caminho_backup = caminho_base / "data" / "backup" / "dados_folhas_backup.json"
 
 # Buscar todos os PDFs
 arquivos_pdf = [f for f in os.listdir(caminho_pasta) if f.endswith('.pdf') and 'Logo' not in f]
 
-print(f"\n📂 Pasta: {caminho_pasta}")
-print(f"📄 Arquivos PDF encontrados: {len(arquivos_pdf)}")
+logger.info(f"\n📂 Pasta: {caminho_pasta}")
+logger.info(f"📄 Arquivos PDF encontrados: {len(arquivos_pdf)}")
 
 if len(arquivos_pdf) == 0:
     print("\n⚠️  Nenhum arquivo PDF encontrado na pasta!")
     exit()
 
-print("\n" + "="*80)
-print("📊 PROCESSANDO FOLHAS DE PAGAMENTO...")
-print("="*80 + "\n")
+logger.info("\n" + "="*80)
+logger.info("📊 PROCESSANDO FOLHAS DE PAGAMENTO...")
+logger.info("="*80 + "\n")
 
 dados_todas_folhas = []
 inicio = datetime.now()
@@ -2386,24 +2405,24 @@ for arquivo in arquivos_pdf:
         print(f"\n❌ Erro ao processar arquivo {arquivo}: {str(e)}")
         continue
 
-print("\n\n" + "="*80)
-print("📈 ESTATÍSTICAS DO PROCESSAMENTO")
-print("="*80)
+logger.info("\n\n" + "="*80)
+logger.info("📈 ESTATÍSTICAS DO PROCESSAMENTO")
+logger.info("="*80)
 
 # Gerar estatísticas
 stats = gerar_relatorio_estatisticas(dados_todas_folhas)
 
-print(f"\n✅ Processados com sucesso: {stats['com_sucesso']}/{stats['total']}")
-print(f"⚠️  Sem dados extraídos: {stats['sem_dados']}/{stats['total']}")
-print(f"❌ Com erros: {stats['com_erro']}/{stats['total']}")
+logger.info(f"\n✅ Processados com sucesso: {stats['com_sucesso']}/{stats['total']}")
+logger.info(f"⚠️  Sem dados extraídos: {stats['sem_dados']}/{stats['total']}")
+logger.info(f"❌ Com erros: {stats['com_erro']}/{stats['total']}")
 
-print(f"\n💰 Total de Proventos: R$ {formatar_moeda_br(stats['total_proventos'])}")
-print(f"⚠️  Total Descontos Compulsórios (Obrigatórios): R$ {formatar_moeda_br(stats['total_descontos_obrigatorios'])}")
-print(f"💳 Total Descontos Facultativos: R$ {formatar_moeda_br(stats['total_descontos_extras'])}")
-print(f"💵 Total Líquido: R$ {formatar_moeda_br(stats['total_liquido'])}")
+logger.info(f"\n💰 Total de Proventos: R$ {formatar_moeda_br(stats['total_proventos'])}")
+logger.info(f"⚠️  Total Descontos Compulsórios (Obrigatórios): R$ {formatar_moeda_br(stats['total_descontos_obrigatorios'])}")
+logger.info(f"💳 Total Descontos Facultativos: R$ {formatar_moeda_br(stats['total_descontos_extras'])}")
+logger.info(f"💵 Total Líquido: R$ {formatar_moeda_br(stats['total_liquido'])}")
 
 tempo_decorrido = (datetime.now() - inicio).total_seconds()
-print(f"\n⏱️  Tempo de processamento: {tempo_decorrido:.2f} segundos")
+logger.info(f"\n⏱️  Tempo de processamento: {tempo_decorrido:.2f} segundos")
 if len(dados_todas_folhas) > 0:
     print(f"⚡ Velocidade: {len(dados_todas_folhas)/tempo_decorrido:.1f} holerites/segundo")
 
@@ -2480,32 +2499,36 @@ if EVENTOS_NAO_MAPEADOS:
     print("="*80 + "\n")
 
 # Gerar HTML
-print("\n" + "="*80)
-print("📝 GERANDO RELATÓRIO HTML...")
-print("="*80 + "\n")
+logger.info("\n" + "="*80)
+logger.info("📝 GERANDO RELATÓRIO HTML...")
+logger.info("="*80 + "\n")
 
 html_final = gerar_html_relatorio(dados_todas_folhas)
 
 # Salvar arquivos na pasta Folha (pasta raiz)
-pasta_raiz = os.path.dirname(caminho_pasta)
+pasta_raiz = caminho_base
 
-# Salvar arquivo HTML diretamente como index.html
-caminho_index = os.path.join(pasta_raiz, "index.html")
-with open(caminho_index, 'w', encoding='utf-8') as f:
+# Salvar arquivo HTML em output/index.html e cópia na raiz
+with open(caminho_output, 'w', encoding='utf-8') as f:
+    f.write(html_final)
+    
+# Cópia na raiz para GitHub Pages
+caminho_index_raiz = caminho_base / "index.html"
+with open(caminho_index_raiz, 'w', encoding='utf-8') as f:
     f.write(html_final)
 
-print(f"✅ Relatório HTML gerado com sucesso!")
-print(f"📁 Arquivo salvo em: {caminho_index}")
+logger.info(f"✅ Relatório HTML gerado com sucesso!")
+logger.info(f"📁 Arquivo salvo em: {caminho_output}")
+logger.info(f"📁 Cópia para GitHub Pages: {caminho_index_raiz}")
 
 # Salvar dados em JSON para backup/análise futura
-caminho_json = os.path.join(pasta_raiz, "dados_folhas_backup.json")
-with open(caminho_json, 'w', encoding='utf-8') as f:
+with open(caminho_backup, 'w', encoding='utf-8') as f:
     json.dump(dados_todas_folhas, f, ensure_ascii=False, indent=2)
-print(f"💾 Backup dos dados salvo em: {caminho_json}")
+logger.info(f"💾 Backup dos dados salvo em: {caminho_backup}")
 
-print("\n" + "="*80)
-print("🎉 PROCESSAMENTO CONCLUÍDO COM SUCESSO!")
-print("="*80)
+logger.info("\n" + "="*80)
+logger.info("🎉 PROCESSAMENTO CONCLUÍDO COM SUCESSO!")
+logger.info("="*80)
 print("\n🌐 Abra o arquivo HTML no navegador para visualizar o relatório!")
 print(f"   → {caminho_index}\n")
 
