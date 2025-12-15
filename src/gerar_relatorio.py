@@ -2585,7 +2585,7 @@ logger.info("\n" + "="*80)
 logger.info("🎉 PROCESSAMENTO CONCLUÍDO COM SUCESSO!")
 logger.info("="*80)
 print("\n🌐 Abra o arquivo HTML no navegador para visualizar o relatório!")
-print(f"   → {caminho_index}\n")
+print(f"   → {caminho_index_raiz}\n")
 
 # ============================================
 # SINCRONIZAÇÃO AUTOMÁTICA COM GITHUB
